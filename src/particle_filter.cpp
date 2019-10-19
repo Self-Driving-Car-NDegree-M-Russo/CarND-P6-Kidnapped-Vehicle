@@ -111,12 +111,12 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
     // Helper variables
     Particle currentParticle;
 
-    double x0 = 0.0;
-    double y0 = 0.0;
-    double theta0 = 0.0;
-    double xf = 0.0;
-    double yf = 0.0;
-    double thetaf = 0.0;
+    double x0 = 0.0;      // Initial x
+    double y0 = 0.0;      // Initial y
+    double theta0 = 0.0;  // Initial theta
+    double xf = 0.0;      // Final x
+    double yf = 0.0;      // Final y
+    double thetaf = 0.0;  // Final theta
 
     double const vOverThetaDot = velocity/yaw_rate;
 
@@ -218,22 +218,71 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                                    const vector<LandmarkObs> &observations,
                                    const Map &map_landmarks) {
-  /**
-   * TODO: Update the weights of each particle using a mult-variate Gaussian
-   *   distribution. You can read more about this distribution here:
-   *   https://en.wikipedia.org/wiki/Multivariate_normal_distribution
-   * NOTE: The observations are given in the VEHICLE'S coordinate system.
-   *   Your particles are located according to the MAP'S coordinate system.
-   *   You will need to transform between the two systems. Keep in mind that
-   *   this transformation requires both rotation AND translation (but no scaling).
-   *   The following is a good resource for the theory:
-   *   https://www.willamette.edu/~gorr/classes/GeneralGraphics/Transforms/transforms2d.htm
-   *   and the following is a good resource for the actual equation to implement
-   *   (look at equation 3.33) http://planning.cs.uiuc.edu/node99.html
-   */
+   /**
+    * updateWeights Updates the weights for each particle based on the likelihood
+    *   of the observed measurements.
+    * @param sensor_range Range [m] of sensor
+    * @param std_landmark[] Array of dimension 2
+    *   [Landmark measurement uncertainty [x [m], y [m]]]
+    * @param observations Vector of landmark observations
+    * @param map Map class containing map landmarks
+    */
 
+    // Set random engine for generating noise
+    std::default_random_engine gen;
 
+    // Create normal (Gaussians) distribution for x and y landmark position,
+    // given the noises in input and mean = 0.0
+    normal_distribution<double> dist_l_x(0.0, std_landmark[0]);
+    normal_distribution<double> dist_l_y(0.0, std_landmark[1]);
 
+    // Helper variables
+    Particle currentParticle;
+
+    double xp = 0.0;      // Particle x
+    double yp = 0.0;      // Particle y
+    double thetap = 0.0;  // Particle theta
+
+    vector<LandmarkObs> transformedObs;
+
+    // Iterate over particles
+    for (int i = 0; i < num_particles; ++i) {
+
+      currentParticle = particles[i];
+
+      xp = currentParticle.x;
+      yp = currentParticle.y;
+      thetap = currentParticle.theta;
+
+      // STEP 1 - Transform landmark observations from car coordinate frame to
+      // map coordinate frame
+      LandmarkObs currentLandmark, transformedLandmark;
+
+      double xc = 0.0;  // Landmark x in car ref. frame
+      double yc = 0.0;  // Landmark y in car ref. frame
+      double xm = 0.0;  // Landmark x in map ref. frame
+      double ym = 0.0;  // Landmark y in map ref. frame
+
+      for (int j = 0; j < observations.size(); j++) {
+
+        currentLandmark = observations[j];
+
+        xc = currentLandmark.x;
+        yc = currentLandmark.y;
+
+        xm = xp + (xc * cos(thetap)) - (yc * sin(thetap));
+        ym = yp + (xc * sin(thetap)) + (yc * cos(thetap));
+
+        transformedLandmark.x = xm;
+        transformedLandmark.y = ym;
+        transformedLandmark.id = currentLandmark.id;
+
+        transformedObs.push_back(transformedLandmark);
+      }
+
+      // STEP 2 - Associate measurements with landmark
+      
+    }
 }
 
 void ParticleFilter::resample() {
