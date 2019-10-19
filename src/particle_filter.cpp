@@ -163,15 +163,56 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
                                      vector<LandmarkObs>& observations) {
-  /**
-   * TODO: Find the predicted measurement that is closest to each
-   *   observed measurement and assign the observed measurement to this
-   *   particular landmark.
-   * NOTE: this method will NOT be called by the grading code. But you will
-   *   probably find it useful to implement this method and use it as a helper
-   *   during the updateWeights phase.
-   */
+   /**
+    * dataAssociation Finds which observations correspond to which landmarks
+    *   (likely by using a nearest-neighbors data association).
+    * @param predicted Vector of predicted landmark observations
+    * @param observations Vector of landmark observations
+    */
 
+    // Helper variables
+    Particle currentParticle, closerParticle;
+    LandmarkObs currentLandmark, predictedLandmark;
+
+    double current_dist;
+
+    // Iterate over Landmarks
+    for (int i = 0; i < observations.size(); ++i) {
+
+      // Extraxt the landmark
+      currentLandmark = observations[i];
+
+      // Initialize minum distance and particle index
+      double min_dist = 99999.99;
+      int min_index = 0;
+
+      // Iterate over particles
+      for (int j = 0; j < num_particles; ++j) {
+
+        // Extract the particle
+        currentParticle = particles[j];
+
+        // Use distance calculator defined in the helper functions
+        current_dist = dist(currentParticle.x, currentParticle.y,
+                            currentLandmark.x, currentLandmark.y);
+
+        // Check distances and uodate
+        if (current_dist < min_dist ) {
+          min_dist = current_dist;
+          min_index = j;
+        };
+      };
+
+      // Create a landmark from closer particle and send it to vector of
+      // predictions
+      closerParticle = particles[min_index];
+
+      predictedLandmark.x = closerParticle.x;
+      predictedLandmark.y = closerParticle.y;
+      predictedLandmark.id = closerParticle.id;
+
+      predicted.push_back (predictedLandmark);
+    };
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
@@ -190,6 +231,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
    *   and the following is a good resource for the actual equation to implement
    *   (look at equation 3.33) http://planning.cs.uiuc.edu/node99.html
    */
+
+
 
 }
 
