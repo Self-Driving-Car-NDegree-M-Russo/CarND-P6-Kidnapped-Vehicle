@@ -44,6 +44,10 @@ int main() {
     return -1;
   }
 
+  std::cout << "Map size : " << map.landmark_list.size() <<'\n';
+
+  std::cout << "Landmark 20: id : " << map.landmark_list[20].id_i << ", x : " << map.landmark_list[20].x_f << ", y :" << map.landmark_list[20].y_f << '\n';
+
   // Create particle filter
   ParticleFilter pf;
 

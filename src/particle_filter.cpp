@@ -171,47 +171,41 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
     */
 
     // Helper variables
-    Particle currentParticle, closerParticle;
-    LandmarkObs currentLandmark, predictedLandmark;
+    LandmarkObs currentObservation, currentPrediction, closestPrediction;
 
     double current_dist;
 
-    // Iterate over Landmarks
+    // Iterate over observed Landmarks
     for (int i = 0; i < observations.size(); ++i) {
 
       // Extraxt the landmark
-      currentLandmark = observations[i];
+      currentObservation = observations[i];
 
       // Initialize minum distance and particle index
       double min_dist = 99999.99;
       int min_index = 0;
 
-      // Iterate over particles
-      for (int j = 0; j < num_particles; ++j) {
+      // Iterate over predicted Landmarks
+      for (int j = 0; j < predicted.size(); ++j) {
 
         // Extract the particle
-        currentParticle = particles[j];
+        currentPrediction = predicted[j];
 
         // Use distance calculator defined in the helper functions
-        current_dist = dist(currentParticle.x, currentParticle.y,
-                            currentLandmark.x, currentLandmark.y);
+        current_dist = dist(currentPrediction.x, currentPrediction.y,
+                            currentObservation.x, currentObservation.y);
 
-        // Check distances and uodate
+        // Check distances and update
         if (current_dist < min_dist ) {
           min_dist = current_dist;
           min_index = j;
         };
       };
 
-      // Create a landmark from closer particle and send it to vector of
-      // predictions
-      closerParticle = particles[min_index];
+      closestPrediction = predicted[min_index];
 
-      predictedLandmark.x = closerParticle.x;
-      predictedLandmark.y = closerParticle.y;
-      predictedLandmark.id = closerParticle.id;
-
-      predicted.push_back (predictedLandmark);
+      // Assign to the observed landmark the id of the closest predicted one
+      currentObservation.id = closestPrediction.id;
     };
 }
 
@@ -280,8 +274,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         transformedObs.push_back(transformedLandmark);
       }
 
-      // STEP 2 - Associate measurements with landmark
+      // STEP 2 - Associate transformed observations (measurements) with
+      // predicted landmarks within range
+
+      // First create a vector of landmarks predicted within range
       
+
     }
 }
 
