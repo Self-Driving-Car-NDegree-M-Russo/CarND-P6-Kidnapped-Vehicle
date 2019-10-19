@@ -22,18 +22,18 @@ using std::string;
 using std::vector;
 using std::normal_distribution;
 
+/**
+ * init Initializes particle filter by initializing particles to Gaussian
+ *   distribution around first position and all the weights to 1.
+ * @param x Initial x position [m] (simulated estimate from GPS)
+ * @param y Initial y position [m]
+ * @param theta Initial orientation [rad]
+ * @param std[] Array of dimension 3 [standard deviation of x [m],
+ *   standard deviation of y [m], standard deviation of yaw [rad]]
+ */
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
-  /**
-   * init Initializes particle filter by initializing particles to Gaussian
-   *   distribution around first position and all the weights to 1.
-   * @param x Initial x position [m] (simulated estimate from GPS)
-   * @param y Initial y position [m]
-   * @param theta Initial orientation [rad]
-   * @param std[] Array of dimension 3 [standard deviation of x [m],
-   *   standard deviation of y [m], standard deviation of yaw [rad]]
-   */
 
-  // Set umber of  particles
+  // Set number of  particles
   num_particles = 1000;
 
   // Set random engine for generating noise
@@ -85,17 +85,17 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   is_initialized = true;
 }
 
+/**
+ * prediction Predicts the state for the next time step
+ *   using the process model.
+ * @param delta_t Time between time step t and t+1 in measurements [s]
+ * @param std_pos[] Array of dimension 3 [standard deviation of x [m],
+ *   standard deviation of y [m], standard deviation of yaw [rad]]
+ * @param velocity Velocity of car from t to t+1 [m/s]
+ * @param yaw_rate Yaw rate of car from t to t+1 [rad/s]
+ */
 void ParticleFilter::prediction(double delta_t, double std_pos[],
                                 double velocity, double yaw_rate) {
-  /**
-   * prediction Predicts the state for the next time step
-   *   using the process model.
-   * @param delta_t Time between time step t and t+1 in measurements [s]
-   * @param std_pos[] Array of dimension 3 [standard deviation of x [m],
-   *   standard deviation of y [m], standard deviation of yaw [rad]]
-   * @param velocity Velocity of car from t to t+1 [m/s]
-   * @param yaw_rate Yaw rate of car from t to t+1 [rad/s]
-   */
 
     // Set random engine for generating noise
     std::default_random_engine gen;
@@ -161,14 +161,14 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
     };
 }
 
+/**
+ * dataAssociation Finds which observations correspond to which landmarks
+ *   (likely by using a nearest-neighbors data association).
+ * @param predicted Vector of predicted landmark observations
+ * @param observations Vector of landmark observations
+ */
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
                                      vector<LandmarkObs>& observations) {
-   /**
-    * dataAssociation Finds which observations correspond to which landmarks
-    *   (likely by using a nearest-neighbors data association).
-    * @param predicted Vector of predicted landmark observations
-    * @param observations Vector of landmark observations
-    */
 
     // Helper variables
     LandmarkObs currentObservation, currentPrediction, closestPrediction;
@@ -202,25 +202,27 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
         };
       };
 
+      // Identify closest landmark
       closestPrediction = predicted[min_index];
 
       // Assign to the observed landmark the id of the closest predicted one
       currentObservation.id = closestPrediction.id;
+      observations[i] = currentObservation;
     };
 }
 
+/**
+ * updateWeights Updates the weights for each particle based on the likelihood
+ *   of the observed measurements.
+ * @param sensor_range Range [m] of sensor
+ * @param std_landmark[] Array of dimension 2
+ *   [Landmark measurement uncertainty [x [m], y [m]]]
+ * @param observations Vector of landmark observations
+ * @param map Map class containing map landmarks
+ */
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                                    const vector<LandmarkObs> &observations,
                                    const Map &map_landmarks) {
-   /**
-    * updateWeights Updates the weights for each particle based on the likelihood
-    *   of the observed measurements.
-    * @param sensor_range Range [m] of sensor
-    * @param std_landmark[] Array of dimension 2
-    *   [Landmark measurement uncertainty [x [m], y [m]]]
-    * @param observations Vector of landmark observations
-    * @param map Map class containing map landmarks
-    */
 
     // Set random engine for generating noise
     std::default_random_engine gen;
@@ -237,7 +239,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     double yp = 0.0;      // Particle y
     double thetap = 0.0;  // Particle theta
 
-    vector<LandmarkObs> transformedObs;
+    vector<LandmarkObs> transformed, predicted;
 
     // Iterate over particles
     for (int i = 0; i < num_particles; ++i) {
@@ -248,9 +250,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       yp = currentParticle.y;
       thetap = currentParticle.theta;
 
+      // -----------------------------------------------------------------------
       // STEP 1 - Transform landmark observations from car coordinate frame to
       // map coordinate frame
-      LandmarkObs currentLandmark, transformedLandmark;
+      LandmarkObs currentObs, transformedObs;
 
       double xc = 0.0;  // Landmark x in car ref. frame
       double yc = 0.0;  // Landmark y in car ref. frame
@@ -259,27 +262,62 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
       for (int j = 0; j < observations.size(); j++) {
 
-        currentLandmark = observations[j];
+        currentObs = observations[j];
 
-        xc = currentLandmark.x;
-        yc = currentLandmark.y;
+        xc = currentObs.x;
+        yc = currentObs.y;
 
         xm = xp + (xc * cos(thetap)) - (yc * sin(thetap));
         ym = yp + (xc * sin(thetap)) + (yc * cos(thetap));
 
-        transformedLandmark.x = xm;
-        transformedLandmark.y = ym;
-        transformedLandmark.id = currentLandmark.id;
+        transformedObs.x = xm;
+        transformedObs.y = ym;
+        // NOTE the following id will be modified by the next step
+        transformedObs.id = currentObs.id;
 
-        transformedObs.push_back(transformedLandmark);
+        transformed.push_back(transformedObs);
       }
 
+      // -----------------------------------------------------------------------
       // STEP 2 - Associate transformed observations (measurements) with
       // predicted landmarks within range
+      LandmarkObs currentLandmark;
+      double current_dist;
 
-      // First create a vector of landmarks predicted within range
-      
+      // First create a vector of landmarks predicted within range from the
+      // landmark map.
+      // Iterate over landmarks in the map
+      for (int k = 0; k < map_landmarks.landmark_list.size(); k++) {
 
+        currentLandmark.x = map_landmarks.landmark_list[k].x_f;
+        currentLandmark.y = map_landmarks.landmark_list[k].y_f;
+        currentLandmark.id = map_landmarks.landmark_list[k].id_i;
+
+        // check if landmark is in range from the particle, given sensor range
+        current_dist = dist(xp, yp, currentLandmark.x, currentLandmark.y);
+
+        if (current_dist <= sensor_range){
+          predicted.push_back(currentLandmark);
+        }
+      }
+
+      // Second, use data association function to associate predicted and
+      // observed landmark
+      dataAssociation(predicted,transformed);
+
+      // -----------------------------------------------------------------------
+      // STEP 3 - Calculate the probablities of incurring in the hiven
+      // observations for the given particle
+
+
+      // -----------------------------------------------------------------------
+      // Update particle weight and reassign it
+
+      particles[i] = currentParticle;
+
+      // Clear vectors before next iteration
+      predicted.clear();
+      transformed.clear();
     }
 }
 
