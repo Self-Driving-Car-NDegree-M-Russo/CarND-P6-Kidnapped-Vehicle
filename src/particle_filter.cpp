@@ -39,13 +39,13 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   // Set random engine for generating noise
   std::default_random_engine gen;
 
-  // Creates a normal (Gaussian) distribution for x, y , theta, given the noises
+  // Creates normal (Gaussian) distributions for x, y, theta, given the noises
   // and positions in input
   normal_distribution<double> dist_x(x, std[0]);
   normal_distribution<double> dist_y(y, std[1]);
   normal_distribution<double> dist_theta(theta, std[2]);
 
-  // creating a particle to assign data to
+  // Creating a particle to assign data to
   Particle currentParticle;
 
   for (int i = 0; i < num_particles; ++i) {
@@ -88,13 +88,77 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 void ParticleFilter::prediction(double delta_t, double std_pos[],
                                 double velocity, double yaw_rate) {
   /**
-   * TODO: Add measurements to each particle and add random Gaussian noise.
-   * NOTE: When adding noise you may find std::normal_distribution
-   *   and std::default_random_engine useful.
-   *  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
-   *  http://www.cplusplus.com/reference/random/default_random_engine/
+   * prediction Predicts the state for the next time step
+   *   using the process model.
+   * @param delta_t Time between time step t and t+1 in measurements [s]
+   * @param std_pos[] Array of dimension 3 [standard deviation of x [m],
+   *   standard deviation of y [m], standard deviation of yaw [rad]]
+   * @param velocity Velocity of car from t to t+1 [m/s]
+   * @param yaw_rate Yaw rate of car from t to t+1 [rad/s]
    */
 
+    // Set random engine for generating noise
+    std::default_random_engine gen;
+
+    // Create normal (Gaussians) distribution for x, y, theta given the noises
+    // in input and mean = 0.0
+    normal_distribution<double> dist_p_x(0.0, std_pos[0]);
+    normal_distribution<double> dist_p_y(0.0, std_pos[1]);
+    normal_distribution<double> dist_p_theta(0.0, std_pos[2]);
+
+    // Update particles' position given Bycicle Model
+
+    // Helper variables
+    Particle currentParticle;
+
+    double x0 = 0.0;
+    double y0 = 0.0;
+    double theta0 = 0.0;
+    double xf = 0.0;
+    double yf = 0.0;
+    double thetaf = 0.0;
+
+    double const vOverThetaDot = velocity/yaw_rate;
+
+    // Iterate over particles
+    for (int i = 0; i < num_particles; ++i) {
+
+      // Extraxt the particle
+      currentParticle = particles[i];
+
+      // Update quantities
+      x0 = currentParticle.x;
+      y0 = currentParticle.y;
+      theta0 = currentParticle.theta;
+
+       // std::cout << "CP - id: " << currentParticle.id << ", x: " << x0 << ", y: " << y0
+       //          << ", theta: " << theta0 << ", w: " << currentParticle.weight << std::endl;
+       // std::cout << "velocity: " << velocity << ", yaw rate: " << yaw_rate << ", delta_t: " << delta_t << std::endl;
+
+      // BYCICLE MODEL
+      xf = x0 + vOverThetaDot * (sin(theta0 + (yaw_rate * delta_t)) -
+                  sin(theta0));
+      yf = y0 + vOverThetaDot * (cos(theta0) -
+                  cos(theta0 + (yaw_rate * delta_t)));
+      thetaf = theta0 + (yaw_rate * delta_t);
+
+       // std::cout << "xf: " << xf << ", yf: " << yf << ", thetaf: " << thetaf << std::endl;
+
+      // Add noise
+      xf += dist_p_x(gen);
+      yf += dist_p_y(gen);
+      thetaf += dist_p_theta(gen);
+
+       // std::cout << "xf + noise: " << xf << ", yf: " << yf << ", thetaf: " << thetaf << std::endl;
+
+      // Update particle with new values
+      currentParticle.x = xf;
+      currentParticle.y = yf;
+      currentParticle.theta = thetaf;
+
+      // Re-insert the particle in the vector
+      particles[i] = currentParticle;
+    };
 }
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
