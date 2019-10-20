@@ -326,15 +326,15 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         mu_x = map_landmarks.landmark_list[transformed[l].id - 1].x_f;
         mu_y = map_landmarks.landmark_list[transformed[l].id - 1].y_f;
 
-        coeff1 = (pow((transformed[l].x - mu_x),2.0) / pow(sigma_x,2.0));
-        coeff2 = (pow((transformed[l].x - mu_y),2.0) / pow(sigma_y,2.0));
+        coeff1 = (pow((transformed[l].x - mu_x),2.0) / (2 * pow(sigma_x,2.0)));
+        coeff2 = (pow((transformed[l].y - mu_y),2.0) / (2 * pow(sigma_y,2.0)));
 
 
         std::cout << "coeff prob 1: " << coeff1 << ", 2: " << coeff2 << ", 3: " << coeff3 << std::endl;
 
         cumulatedProb *= coeff3 * exp (-(coeff1 + coeff2));
 
-       std::cout << "dummy: " << exp (-(coeff1 + coeff2)) << std::endl; 
+       std::cout << "dummy: " << exp (-(coeff1 + coeff2)) << std::endl;
        std::cout << "cumulatedProb: " << cumulatedProb << std::endl;
 
       }
