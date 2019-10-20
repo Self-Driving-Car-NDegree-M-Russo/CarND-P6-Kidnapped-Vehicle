@@ -224,20 +224,16 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                                    const vector<LandmarkObs> &observations,
                                    const Map &map_landmarks) {
 
-    // Set random engine for generating noise
-    std::default_random_engine gen;
-
-    // Create normal (Gaussians) distribution for x and y landmark position,
-    // given the noises in input and mean = 0.0
-    normal_distribution<double> dist_l_x(0.0, std_landmark[0]);
-    normal_distribution<double> dist_l_y(0.0, std_landmark[1]);
-
     // Helper variables
     Particle currentParticle;
 
     double xp = 0.0;      // Particle x
     double yp = 0.0;      // Particle y
     double thetap = 0.0;  // Particle theta
+
+    double sigma_x = std_landmark[0];
+    double sigma_y = std_landmark[1];
+    double coeff3 = 1.0 / (2 * M_PI * sigma_x * sigma_y);
 
     vector<LandmarkObs> transformed, predicted;
 
@@ -305,14 +301,47 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // observed landmark
       dataAssociation(predicted,transformed);
 
+      // After this the vector of trandformed observation has, for each element,
+      // the id of the closest landmark from the list in the map
+
       // -----------------------------------------------------------------------
       // STEP 3 - Calculate the probablities of incurring in the hiven
-      // observations for the given particle
+      // observations for the given particle.
+      // For this we calculate the mutivariate gaussian probability of each
+      // observation
+
+      // Init prob, mu
+      double cumulatedProb = 1.0;
+      double mu_x = 0.0;
+      double mu_y = 0.0;
+
+      double coeff1 = 0.0;
+      double coeff2 = 0.0;
+
+      for (int l = 0; l < transformed.size(); l++) {
+
+        // The x and y means are from the nearest landmark, which id is stored
+        // in transformed id
+        // NOTE: iterators are 0-based while id start from 1
+        mu_x = map_landmarks.landmark_list[transformed[l].id - 1].x_f;
+        mu_y = map_landmarks.landmark_list[transformed[l].id - 1].y_f;
+
+        coeff1 = (pow((transformed[l].x - mu_x),2.0) / pow(sigma_x,2.0));
+        coeff2 = (pow((transformed[l].x - mu_y),2.0) / pow(sigma_y,2.0));
 
 
+        std::cout << "coeff prob 1: " << coeff1 << ", 2: " << coeff2 << ", 3: " << coeff3 << std::endl;
+
+        cumulatedProb *= coeff3 * exp (-(coeff1 + coeff2));
+
+       std::cout << "dummy: " << exp (-(coeff1 + coeff2)) << std::endl; 
+       std::cout << "cumulatedProb: " << cumulatedProb << std::endl;
+
+      }
       // -----------------------------------------------------------------------
       // Update particle weight and reassign it
 
+      currentParticle.weight = cumulatedProb;
       particles[i] = currentParticle;
 
       // Clear vectors before next iteration
