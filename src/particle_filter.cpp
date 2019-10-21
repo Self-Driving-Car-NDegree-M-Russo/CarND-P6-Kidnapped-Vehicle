@@ -50,36 +50,15 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
   for (int i = 0; i < num_particles; ++i) {
 
-    currentParticle.id = i+1;             // Assigning an id
-    currentParticle.x = dist_x(gen);      // Sampling from x distribution
-    currentParticle.y = dist_y(gen);      // Sampling from y distribution
-    currentParticle.theta = dist_y(gen);  // Sampling from y distribution
-    currentParticle.weight = 1.0;         // Sampling from y distribution
+    currentParticle.id = i+1;                 // Assigning an id
+    currentParticle.x = dist_x(gen);          // Sampling from x distribution
+    currentParticle.y = dist_y(gen);          // Sampling from y distribution
+    currentParticle.theta = dist_theta(gen);  // Sampling from theta distribution
+    currentParticle.weight = 1.0;             // Assigning a weight = 1
 
     // Append particle to vector
     particles.push_back (currentParticle);
-
-    // Print your samples to the terminal.
-    //std::cout << "Sample " << i + 1 << " " << dist_x(gen) << " " << dist_y(gen) << " "
-    //          << dist_theta(gen) << std::endl;
   };
-
-  // Print size of the vector
-  // std::cout << "Vector size " << particles.size() << std::endl;
-
-  // Print examples, to double check
-  // Particle temp1 = particles[234];
-  // std::cout << "Temp 1 - id: " << temp1.id << ", x: " << temp1.x << ", y: " << temp1.y
-  //         << ", theta: " << temp1.theta << ", w: " << temp1.weight << std::endl;
-  //
-  // Particle temp2 = particles[538];
-  // std::cout << "Temp 2 - id: " << temp2.id << ", x: " << temp2.x << ", y: " << temp2.y
-  //         << ", theta: " << temp2.theta << ", w: " << temp2.weight << std::endl;
-  //
-  // Particle temp3 = particles[183];
-  // std::cout << "Temp 3 - id: " << temp3.id << ", x: " << temp3.x << ", y: " << temp3.y
-  //         << ", theta: " << temp3.theta << ", w: " << temp3.weight << std::endl;
-
 
   //  Update the initialization flag
   is_initialized = true;
@@ -131,10 +110,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
       y0 = currentParticle.y;
       theta0 = currentParticle.theta;
 
-       // std::cout << "CP - id: " << currentParticle.id << ", x: " << x0 << ", y: " << y0
-       //          << ", theta: " << theta0 << ", w: " << currentParticle.weight << std::endl;
-       // std::cout << "velocity: " << velocity << ", yaw rate: " << yaw_rate << ", delta_t: " << delta_t << std::endl;
-
       // BYCICLE MODEL
       xf = x0 + vOverThetaDot * (sin(theta0 + (yaw_rate * delta_t)) -
                   sin(theta0));
@@ -142,14 +117,10 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
                   cos(theta0 + (yaw_rate * delta_t)));
       thetaf = theta0 + (yaw_rate * delta_t);
 
-       // std::cout << "xf: " << xf << ", yf: " << yf << ", thetaf: " << thetaf << std::endl;
-
       // Add noise
       xf += dist_p_x(gen);
       yf += dist_p_y(gen);
       thetaf += dist_p_theta(gen);
-
-       // std::cout << "xf + noise: " << xf << ", yf: " << yf << ", thetaf: " << thetaf << std::endl;
 
       // Update particle with new values
       currentParticle.x = xf;
@@ -273,7 +244,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
         transformed.push_back(transformedObs);
       }
-
       // -----------------------------------------------------------------------
       // STEP 2 - Associate transformed observations (measurements) with
       // predicted landmarks within range
@@ -318,6 +288,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       double coeff1 = 0.0;
       double coeff2 = 0.0;
 
+      double check_dist;
+
       for (int l = 0; l < transformed.size(); l++) {
 
         // The x and y means are from the nearest landmark, which id is stored
@@ -326,17 +298,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         mu_x = map_landmarks.landmark_list[transformed[l].id - 1].x_f;
         mu_y = map_landmarks.landmark_list[transformed[l].id - 1].y_f;
 
+        check_dist = dist(transformed[l].x,transformed[l].y,mu_x,mu_y);
+
         coeff1 = (pow((transformed[l].x - mu_x),2.0) / (2 * pow(sigma_x,2.0)));
         coeff2 = (pow((transformed[l].y - mu_y),2.0) / (2 * pow(sigma_y,2.0)));
 
-
-        std::cout << "coeff prob 1: " << coeff1 << ", 2: " << coeff2 << ", 3: " << coeff3 << std::endl;
-
         cumulatedProb *= coeff3 * exp (-(coeff1 + coeff2));
-
-       std::cout << "dummy: " << exp (-(coeff1 + coeff2)) << std::endl;
-       std::cout << "cumulatedProb: " << cumulatedProb << std::endl;
-
       }
       // -----------------------------------------------------------------------
       // Update particle weight and reassign it
