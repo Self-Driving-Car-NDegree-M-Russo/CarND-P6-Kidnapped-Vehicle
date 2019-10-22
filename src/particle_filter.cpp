@@ -21,6 +21,8 @@
 using std::string;
 using std::vector;
 using std::normal_distribution;
+using std::uniform_int_distribution;
+using std::uniform_real_distribution;
 
 /**
  * init Initializes particle filter by initializing particles to Gaussian
@@ -75,7 +77,6 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
  */
 void ParticleFilter::prediction(double delta_t, double std_pos[],
                                 double velocity, double yaw_rate) {
-
     // Set random engine for generating noise
     std::default_random_engine gen;
 
@@ -140,10 +141,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
  */
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
                                      vector<LandmarkObs>& observations) {
-
     // Helper variables
     LandmarkObs currentObservation, currentPrediction, closestPrediction;
-
     double current_dist;
 
     // Iterate over observed Landmarks
@@ -194,7 +193,6 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                                    const vector<LandmarkObs> &observations,
                                    const Map &map_landmarks) {
-
     // Helper variables
     Particle currentParticle;
 
@@ -275,7 +273,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // the id of the closest landmark from the list in the map
 
       // -----------------------------------------------------------------------
-      // STEP 3 - Calculate the probablities of incurring in the hiven
+      // STEP 3 - Calculate the probablities of incurring in the given
       // observations for the given particle.
       // For this we calculate the mutivariate gaussian probability of each
       // observation
@@ -306,8 +304,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         cumulatedProb *= coeff3 * exp (-(coeff1 + coeff2));
       }
       // -----------------------------------------------------------------------
-      // Update particle weight and reassign it
 
+      // Update particle weight and reassign it
       currentParticle.weight = cumulatedProb;
       particles[i] = currentParticle;
 
@@ -317,14 +315,73 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     }
 }
 
+/**
+ * resample Resamples from the updated set of particles to form
+ *   the new set of particles.
+ */
 void ParticleFilter::resample() {
-  /**
-   * TODO: Resample particles with replacement with probability proportional
-   *   to their weight.
-   * NOTE: You may find std::discrete_distribution helpful here.
-   *   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
-   */
+   // SAMPLING WHEEL Resample Algorithm
 
+   //
+   // p3 = []
+   // index = int(random.random()*N)
+   // beta = 0.0
+   // mw = max(w)
+   //
+   // for i in range(N):
+   //     beta += random.random()*2.0*mw
+   //     while beta > w[index]:
+   //         beta -= w[index]
+   //         index = (index +1) % N
+   //     p3.append(p[index])
+   //
+   // p = p3
+
+   std::cout << "======== RESAMPLING IN ++++++++++++++++++++" << std::endl;
+   // Set random engine for generating noise
+   std::default_random_engine gen;
+
+   // Determin maximum weight for current particles
+   double highest_weight = -1.0;
+   for (int i = 0; i < num_particles; ++i) {
+     if (particles[i].weight > highest_weight) {
+       highest_weight = particles[i].weight;
+     }
+   }
+   std::cout << " Highest weight: " << highest_weight << std::endl;
+
+
+   // Uniform distributions for index and beta
+   uniform_int_distribution<int> dist_index(1, num_particles);
+   uniform_real_distribution<int> dist_beta(0, 2 * highest_weight);
+
+   // Initialize new vector and coefficient beta
+   std::vector<Particle> resampledParticles;
+   double beta = 0.0;
+
+   // Get starting index randomly
+   int index = dist_index(gen);
+
+   // Iterate over particles
+   for (int j = 0; j < num_particles; ++j) {
+
+     // Increment beta with random generator value
+     beta += dist_beta(gen);
+
+     // Check if weight of the particle is greater then beta, and update
+     // accordingly
+     while (beta > particles[index].weight) {
+       beta -= particles[index].weight;
+       index = (index + 1) % num_particles;
+     }
+
+     // Push sample particle in the new vector
+     resampledParticles.push_back(particles[index]);
+   }
+
+   // Re-assign the vector of particles
+   particles = resampledParticles;
+   std::cout << "======== RESAMPLING OUT ++++++++++++++++++++" << std::endl;
 }
 
 void ParticleFilter::SetAssociations(Particle& particle,
