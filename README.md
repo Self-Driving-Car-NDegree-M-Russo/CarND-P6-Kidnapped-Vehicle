@@ -8,13 +8,13 @@ This Project is submitted as part of the Udacity Self-Driving Car Nanodegree.
 
 For it the goal is to write C++ code implementing a Particle Filter to loaclize a moving object of interest, starting from a feature map and noisy measurements.
 
-The source code for this project, is submitted as part of this Git repo (in the [src](/src) folder). A detailed explanation is provided in a separate [writeup](Kidnapped_Vehicle_writeup.md), that documents also the results of the filter.  
+The source code for this project is submitted as part of this Git repo (in the [src](/src) folder). A detailed explanation is provided in a separate [writeup](Kidnapped_Vehicle_writeup.md), that documents also the results of the filter.  
 
 Dependencies
 ---
 First of all, this project involves the Udacity Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases).
 
-This repository includes two files that can be used to set up and install [uWebSocketIO](https://github.com/uWebSockets/uWebSockets) for either Linux or Mac systems. For windows you can use either Docker, VMware, or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) to install uWebSocketIO. Please see the uWebSocketIO Starter Guide page in the classroom within the EKF Project lesson for the required version and installation scripts.
+This repository includes two files that can be used to set up and install uWebSocketIO for either Linux or Mac systems. For windows you can use either Docker, VMware, or even Windows 10 Bash on Ubuntu to install uWebSocketIO.
 
 Other important dependencies are:
 
