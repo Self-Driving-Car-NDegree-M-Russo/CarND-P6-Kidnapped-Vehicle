@@ -10,12 +10,11 @@ The data source for this Filter will be the Udacity [simulator](https://github.c
 
 #### The Map
 
-The simulator will load a feature map described through the [`map_data.txt`](./data/map_data.txt) file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns
+The simulator will load a feature map described through the [`map_data.txt`](./data/map_data.txt) file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns:
+
 1. x position
 2. y position
 3. landmark id
-
-
 
 ## Compiling the Code
 
