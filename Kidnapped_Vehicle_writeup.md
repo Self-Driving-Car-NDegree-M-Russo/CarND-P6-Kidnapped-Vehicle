@@ -6,7 +6,14 @@ The goal of this project is the implementation, in C++, of an Particle Filter ca
 ---
 ## Data Input
 
-The data source for this Filter will be the Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases).
+The data source for this Filter will be the Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases). 
+
+#### The Map
+
+The simulator will load a feature map described through the `map_data.txt` file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns
+1. x position
+2. y position
+3. landmark id
 
 
 
