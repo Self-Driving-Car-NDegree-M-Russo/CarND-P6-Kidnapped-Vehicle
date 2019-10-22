@@ -21,7 +21,7 @@ The code is intended to be compiled using CMake and Make, through some shell scr
 Followed by
 
 ```sh
-./clean.sh
+./build.sh
 ```
 
 Note that the first is not strictly necessary for the first build, but is good practice to clean the project before subsequent builds.
