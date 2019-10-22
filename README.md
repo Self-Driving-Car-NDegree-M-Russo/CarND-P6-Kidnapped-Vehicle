@@ -8,7 +8,7 @@ This Project is submitted as part of the Udacity Self-Driving Car Nanodegree.
 
 For it the goal is to write C++ code implementing a Particle Filter to loaclize a moving object of interest, starting from a feature map and noisy measurements.
 
-The source code for this project, is submitted as part of this Git repo (in the [src](/src) folder). A detailed explanation is provided in a separate [writeup](Kidnapped_vehicle_writeup.md), that documents also the results of the filter.  
+The source code for this project, is submitted as part of this Git repo (in the [src](/src) folder). A detailed explanation is provided in a separate [writeup](Kidnapped_Vehicle_writeup.md), that documents also the results of the filter.  
 
 Dependencies
 ---
