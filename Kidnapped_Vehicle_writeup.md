@@ -17,6 +17,17 @@ The data source for this Filter will be the Udacity [simulator](https://github.c
 
 The simulator will load a feature map described through the [`map_data.txt`](./data/map_data.txt) file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns, describing x position, y position and landmark id.
 
+the map is read in the [main.cpp](./src/main.cpp) file, lines [40:45]:
+
+```sh
+  // Read map data
+  Map map;
+  if (!read_map_data("../data/map_data.txt", map)) {
+    std::cout << "Error: Could not open map file" << std::endl;
+    return -1;
+  }
+```
+
 ## Initialization
 
 The first thing that happens to the filter is to have its state initialized at the value of the first measurement ([FusionEKF.cpp](./src/FusionEKF.cpp), lines 59-139).
