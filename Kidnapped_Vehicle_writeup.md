@@ -40,6 +40,41 @@ The first thing that happens to the filter is to have its state initialized at t
 
 This instruction initialize the filter starting with the (x,y,theta) collected through simulated GPS measurements. Specifically, the `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 36-67) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
 
+The definiton of the normal distribution functions can be found in lines (41-48):
+
+```sh
+  // Set random engine for generating noise
+  std::default_random_engine gen;
+
+  // Creates normal (Gaussian) distributions for x, y, theta, given the noises
+  // and positions in input
+  normal_distribution<double> dist_x(x, std[0]);
+  normal_distribution<double> dist_y(y, std[1]);
+  normal_distribution<double> dist_theta(theta, std[2]);
+```
+
+where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors along the three variables.
+
+The actual assignment of values to the pparticles happens in lines (50-63):
+
+```sh
+  // Creating a particle to assign data to
+  Particle currentParticle;
+
+  for (int i = 0; i < num_particles; ++i) {
+
+    currentParticle.id = i+1;                 // Assigning an id
+    currentParticle.x = dist_x(gen);          // Sampling from x distribution
+    currentParticle.y = dist_y(gen);          // Sampling from y distribution
+    currentParticle.theta = dist_theta(gen);  // Sampling from theta distribution
+    currentParticle.weight = 1.0;             // Assigning a weight = 1
+
+    // Append particle to vector
+    particles.push_back (currentParticle);
+  };
+
+```
+
 ## Prediction
 
 ```sh
