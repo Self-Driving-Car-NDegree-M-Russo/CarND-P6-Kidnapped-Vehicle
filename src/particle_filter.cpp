@@ -36,7 +36,7 @@ using std::uniform_real_distribution;
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
   // Set number of  particles
-  num_particles = 1000;
+  num_particles = 500;
 
   // Set random engine for generating noise
   std::default_random_engine gen;
@@ -218,7 +218,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                                    const vector<LandmarkObs> &observations,
                                    const Map &map_landmarks) {
 
-    std::cout << "++++++++++ UPDATING WEIGHTS ++++++++++++++"<<std::endl;
+    // std::cout << "++++++++++ UPDATING WEIGHTS ++++++++++++++"<<std::endl;
     // Helper variables
     Particle currentParticle;
 
@@ -247,7 +247,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // -----------------------------------------------------------------------
       // STEP 1 - Transform landmark observations from car coordinate frame to
       // map coordinate frame
-      std::cout<<"========= TRANSFORMING ========= "<<std::endl;
+      // std::cout<<"========= TRANSFORMING ========= "<<std::endl;
       LandmarkObs currentObs, transformedObs;
 
       double xc = 0.0;  // Landmark x in car ref. frame
@@ -274,12 +274,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         transformed.push_back(transformedObs);
 
       }
-      std::cout<<"========= TRANSFORMING ENDS ========= "<<std::endl;
+      // std::cout<<"========= TRANSFORMING ENDS ========= "<<std::endl;
       // -----------------------------------------------------------------------
       // STEP 2 - Associate transformed observations (measurements) with
       // predicted landmarks within range
 
-      std::cout<<"========= ASSOCIATION IN ========= "<<std::endl;
+      // std::cout<<"========= ASSOCIATION IN ========= "<<std::endl;
       LandmarkObs currentLandmark;
       double current_dist;
 
@@ -303,7 +303,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // Second, use data association function to associate predicted and
       // observed landmark
       dataAssociation(predicted,transformed);
-      std::cout<<"========= ASSOCIATION OUT ========= "<<std::endl;
+      // std::cout<<"========= ASSOCIATION OUT ========= "<<std::endl;
       // After this the vector of trandformed observation has, for each element,
       // the id of the closest landmark from the list in the map
 
@@ -314,7 +314,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // observation
 
       // Init prob, mu
-      std::cout<<"========= MULTIV UPDATE ========= "<<std::endl;
+      // std::cout<<"========= MULTIV UPDATE ========= "<<std::endl;
       double cumulatedProb = 1.0;
       double mu_x = 0.0;
       double mu_y = 0.0;
@@ -355,20 +355,20 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
       cumulated_weight += cumulatedProb;
 
-      std::cout<<"========= MULTIV UPDATED ========= "<<std::endl;
+      // std::cout<<"========= MULTIV UPDATED ========= "<<std::endl;
       // Clear vectors before next iteration
       predicted.clear();
       transformed.clear();
     }
 
-    std::cout<<"Cum. weight: "<<cumulated_weight<<std::endl;
+    // std::cout<<"Cum. weight: "<<cumulated_weight<<std::endl;
     // After all the previous process, the weights will still have to be normalized
-    std::cout << "NORMALIZING WEIGHTS" << std::endl;
+    // std::cout << "NORMALIZING WEIGHTS" << std::endl;
     for (int i = 0; i < num_particles; ++i) {
       particles[i].weight = particles[i].weight / cumulated_weight;
     }
-    std::cout << "WEIGHTS normalized" << std::endl;
-    std::cout << "++++++++++ WEIGHTS UPDATED ++++++++++++++"<<std::endl;
+    // std::cout << "WEIGHTS normalized" << std::endl;
+    // std::cout << "++++++++++ WEIGHTS UPDATED ++++++++++++++"<<std::endl;
 }
 
 /**
@@ -393,7 +393,7 @@ void ParticleFilter::resample() {
    //
    // p = p3
 
-   std::cout << "======== RESAMPLING IN ++++++++++++++++++++" << std::endl;
+   // std::cout << "======== RESAMPLING IN ++++++++++++++++++++" << std::endl;
    // Set random engine for generating noise
    std::default_random_engine gen;
 
@@ -404,12 +404,12 @@ void ParticleFilter::resample() {
        highest_weight = particles[i].weight;
      }
    }
-   std::cout << " Highest weight: " << highest_weight << std::endl;
+   // std::cout << " Highest weight: " << highest_weight << std::endl;
 
 
    // Uniform distributions for index and beta
    uniform_int_distribution<int> dist_index(1, num_particles);
-   uniform_real_distribution<int> dist_beta(0, 2 * highest_weight);
+   uniform_real_distribution<double> dist_beta(0.0, 2.0 * highest_weight);
 
    // Initialize new vector and coefficient beta
    std::vector<Particle> resampledParticles;
@@ -435,9 +435,25 @@ void ParticleFilter::resample() {
      resampledParticles.push_back(particles[index]);
    }
 
+   // highest_weight = -1.0;
+   // for (int i = 0; i < num_particles; ++i) {
+   //   if (resampledParticles[i].weight > highest_weight) {
+   //     highest_weight = resampledParticles[i].weight;
+   //   }
+   // }
+   // std::cout << " Highest weight: " << highest_weight << std::endl;
+
    // Re-assign the vector of particles
    particles = resampledParticles;
-   std::cout << "======== RESAMPLING OUT ++++++++++++++++++++" << std::endl;
+
+   // highest_weight = -1.0;
+   // for (int i = 0; i < num_particles; ++i) {
+   //   if (particles[i].weight > highest_weight) {
+   //     highest_weight = particles[i].weight;
+   //   }
+   // }
+
+   // std::cout << "======== RESAMPLING OUT ++++++++++++++++++++" << std::endl;
 }
 
 void ParticleFilter::SetAssociations(Particle& particle,
