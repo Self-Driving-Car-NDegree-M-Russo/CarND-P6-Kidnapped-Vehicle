@@ -17,7 +17,7 @@ The data source for this Filter will be the Udacity [simulator](https://github.c
 
 The simulator will load a feature map described through the [`map_data.txt`](./data/map_data.txt) file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns, describing x position, y position and landmark id.
 
-the map is read in the [main.cpp](./src/main.cpp) file, lines [40:45]:
+the map is read in the [main.cpp](./src/main.cpp) file, lines [40-45]:
 
 ```sh
   // Read map data
@@ -27,6 +27,8 @@ the map is read in the [main.cpp](./src/main.cpp) file, lines [40:45]:
     return -1;
   }
 ```
+
+the `read_map_data` function is defined in [helper_functions.h](./src/helper_functions.h), lines [85-122].
 
 ## Initialization
 
