@@ -11,15 +11,41 @@ The following sections of this writeup will provide details on the filter operat
 ---
 ## Data Input
 
-The data source for this Filter will be the Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases). 
+The data source for this Filter will be the Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases). The compiled code will open a websocke session to the sim and provide localization information that will be shon on the screen.
 
 ### _The Map_
 
-The simulator will load a feature map described through the [`map_data.txt`](./data/map_data.txt) file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns:
+The simulator will load a feature map described through the [`map_data.txt`](./data/map_data.txt) file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns, describing x position, y position and landmark id.
 
-1. x position
-2. y position
-3. landmark id
+## Initialization
+
+The first thing that happens to the filter is to have its state initialized at the value of the first measurement ([FusionEKF.cpp](./src/FusionEKF.cpp), lines 59-139).
+
+```sh
+     pf.init(sense_x, sense_y, sense_theta, sigma_pos);
+```
+
+## Prediction
+
+```sh
+    pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
+```
+
+## Update Particle Weights
+
+```sh
+    pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
+```
+
+## Resampling
+
+```sh
+    pf.resample();
+```
+
+## Accuracy Evaluation
+
+
 
 ## Compiling the Code
 
