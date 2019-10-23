@@ -55,7 +55,7 @@ The definiton of the normal distribution functions can be found in lines (41-48)
 
 where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors for the three variables.
 
-The actual assignment of values to the pparticles happens in lines (50-63):
+The actual assignment of values to the particles happens in lines (50-63):
 
 ```sh
   // Creating a particle to assign data to
