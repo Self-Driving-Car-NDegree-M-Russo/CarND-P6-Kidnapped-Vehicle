@@ -38,7 +38,7 @@ The first thing that happens to the filter is to have its state initialized at t
      pf.init(sense_x, sense_y, sense_theta, sigma_pos);
 ```
 
-This instruction initialize the filter starting with the (x,y,theta) collected through simulated GPS measurements. Specifically, the `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 36-67) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. 
+This instruction initialize the filter starting with the (x,y,theta) collected through simulated GPS measurements. Specifically, the `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 36-67) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
 
 ## Prediction
 
