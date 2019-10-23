@@ -1,7 +1,7 @@
 ## "Kidnapped" Vehicle Project
 
 
-The goal of this project is the implementation, in C++, of an Particle Filter capable of localizing a vehicle using as input noisy sensor measurements and a feature map of the environment, with no "a priori" information (hence the "Kidnapped" situation).  
+The goal of this project is the implementation, in C++, of a 2D Particle Filter capable of localizing a vehicle using as input noisy sensor measurements and a feature map of the environment, with no "a priori" information (hence the "Kidnapped" situation).  
 
 The source code is contained in the [src](./src) folder in this git repo. It is the evolution of a starter project provided directly by Udacity, where the [particle_filter.cpp](./src/particle_filter.cpp) was modified. The other files have been left fundamentally unchanged.
 
@@ -17,7 +17,7 @@ The data source for this Filter will be the Udacity [simulator](https://github.c
 
 The simulator will load a feature map described through the [`map_data.txt`](./data/map_data.txt) file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns, describing x position, y position and landmark id.
 
-the map is read in the [main.cpp](./src/main.cpp) file, lines [40-45]:
+the map is read in the [main.cpp](./src/main.cpp) file (lines 40-45):
 
 ```sh
   // Read map data
@@ -28,15 +28,17 @@ the map is read in the [main.cpp](./src/main.cpp) file, lines [40-45]:
   }
 ```
 
-the `read_map_data` function is defined in [helper_functions.h](./src/helper_functions.h), lines [85-122].
+the `read_map_data` function is defined in [helper_functions.h](./src/helper_functions.h) (lines 85-122).
 
 ## Initialization
 
-The first thing that happens to the filter is to have its state initialized at the value of the first measurement ([FusionEKF.cpp](./src/FusionEKF.cpp), lines 59-139).
+The first thing that happens to the filter is to have its state initialized at the value of the first measurement ([main.cpp](./src/main.cpp), line 76).
 
 ```sh
      pf.init(sense_x, sense_y, sense_theta, sigma_pos);
 ```
+
+This instruction initialize the filter starting with the (x,y,theta) collected through simulated GPS measurements. Specifically, the `init(...)` function is coded in [particle_filter.cpp] (./src/particle_filter.cpp) (lines 36-67) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. 
 
 ## Prediction
 
