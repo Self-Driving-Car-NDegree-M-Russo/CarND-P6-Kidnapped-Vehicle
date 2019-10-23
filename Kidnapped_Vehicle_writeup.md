@@ -3,12 +3,17 @@
 
 The goal of this project is the implementation, in C++, of an Particle Filter capable of localizing a vehicle using as input noisy sensor measurements and a feature map of the environment, with no "a priori" information (hence the "Kidnapped" situation).  
 
+The source code is contained in the [src](./src) folder in this git repo. It is the evolution of a starter project provided directly by Udacity, where the [particle_filter.cpp](./src/particle_filter.cpp) was modified. The other files have been left fundamentally unchanged.
+
+The following sections of this writeup will provide details on the filter operations and the data flow, and in doing so the fundamental pieces of the code will be explained. A final [Results](Kidnapped_Vehicle_writeup.md#filter-results) section will show the outcomes of the filter running against the reference data set. 
+
+
 ---
 ## Data Input
 
 The data source for this Filter will be the Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases). 
 
-#### The Map
+### _The Map_
 
 The simulator will load a feature map described through the [`map_data.txt`](./data/map_data.txt) file that can be found in the `data` directory. This file includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns:
 
