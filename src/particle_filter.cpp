@@ -36,7 +36,7 @@ using std::uniform_real_distribution;
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
   // Set number of  particles
-  num_particles = 500;
+  num_particles = 1000;
 
   // Set random engine for generating noise
   std::default_random_engine gen;
@@ -106,6 +106,10 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
     double yf = 0.0;      // Final y
     double thetaf = 0.0;  // Final theta
 
+    // Prevent division by 0
+    if (abs(yaw_rate) < 0.00001){
+      yaw_rate = 0.00001;
+    }
     double const vOverThetaDot = velocity/yaw_rate;
 
     // Iterate over particles
@@ -148,7 +152,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
  * @param observations Vector of landmark observations
  */
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
-                                     vector<LandmarkObs>& observations) {
+                                     vector<LandmarkObs> &observations) {
     // Helper variables
     LandmarkObs currentObservation, currentPrediction, closestPrediction;
     double current_dist;
@@ -220,7 +224,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
     // std::cout << "++++++++++ UPDATING WEIGHTS ++++++++++++++"<<std::endl;
     // Helper variables
-    Particle currentParticle;
+    //Particle currentParticle;
 
     double xp = 0.0;      // Particle x
     double yp = 0.0;      // Particle y
@@ -235,26 +239,47 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
     vector<LandmarkObs> transformed, predicted;
 
+    // Transformation variables
+    LandmarkObs currentObs, transformedObs;
+    double xc = 0.0;  // Landmark x in car ref. frame
+    double yc = 0.0;  // Landmark y in car ref. frame
+    double xm = 0.0;  // Landmark x in map ref. frame
+    double ym = 0.0;  // Landmark y in map ref. frame
+    //
+    // Association variables
+    LandmarkObs currentLandmark;
+    double current_dist;
+    //
+    // Multivariate definition
+    double cumulatedProb = 0.0;
+    double mu_x = 0.0;
+    double mu_y = 0.0;
+
+    double coeff1 = 0.0;
+    double coeff2 = 0.0;
+
+    //vector<double> distances;
+
     // Iterate over particles
     for (int i = 0; i < num_particles; ++i) {
 
-      currentParticle = particles[i];
+      //currentParticle = particles[i];
 
-      xp = currentParticle.x;
-      yp = currentParticle.y;
-      thetap = currentParticle.theta;
+      xp = particles[i].x;
+      yp = particles[i].y;
+      thetap = particles[i].theta;
 
+      // if(isnan(xp)){
+      //   std::cout << "NAN at i = " << i <<std::endl;
+      //   // std::cout << "Particle_id :" << currentParticle.id<< ", Particle_x: " << currentParticle.x <<
+      //   // ", Particle_y: " << currentParticle.y << ", Particle_theta: " << currentParticle.theta << std::endl;
+      //   std::cout << "Particle_id :" << particles[i].id<< ", Particle_x: " << particles[i].x <<
+      //   ", Particle_y: " << particles[i].y << ", Particle_theta: " << particles[i].theta << std::endl;
+      // }
       // -----------------------------------------------------------------------
       // STEP 1 - Transform landmark observations from car coordinate frame to
       // map coordinate frame
       // std::cout<<"========= TRANSFORMING ========= "<<std::endl;
-      LandmarkObs currentObs, transformedObs;
-
-      double xc = 0.0;  // Landmark x in car ref. frame
-      double yc = 0.0;  // Landmark y in car ref. frame
-      double xm = 0.0;  // Landmark x in map ref. frame
-      double ym = 0.0;  // Landmark y in map ref. frame
-
       for (int j = 0; j < observations.size(); j++) {
 
         currentObs = observations[j];
@@ -272,7 +297,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
         //std::cout<<"ID:  "<< currentObs.id << ", ID: " << observations[j].id <<std::endl;
         transformed.push_back(transformedObs);
-
       }
       // std::cout<<"========= TRANSFORMING ENDS ========= "<<std::endl;
       // -----------------------------------------------------------------------
@@ -280,9 +304,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // predicted landmarks within range
 
       // std::cout<<"========= ASSOCIATION IN ========= "<<std::endl;
-      LandmarkObs currentLandmark;
-      double current_dist;
-
       // First create a vector of landmarks predicted within range from the
       // landmark map.
       // Iterate over landmarks in the map
@@ -294,12 +315,20 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
         // check if landmark is in range from the particle, given sensor range
         current_dist = dist(xp, yp, currentLandmark.x, currentLandmark.y);
-
+        //distances.push_back(current_dist);
         if (current_dist <= sensor_range){
           predicted.push_back(currentLandmark);
         }
       }
 
+      // if (predicted.size()==0){
+      //   std::cout << "++++++++ ZERO Predicted ++++++++++ " << std::endl;
+      //   std::cout << "Particle X: "<< xp <<"; Particle Y: "<< yp << std::endl;
+      //   for (int ij = 0; ij < distances.size(); ++ij){
+      //     std::cout << "Distance : "<< distances[ij] << std::endl;
+      //   }
+      // }
+      // distances.clear();
       // Second, use data association function to associate predicted and
       // observed landmark
       dataAssociation(predicted,transformed);
@@ -315,14 +344,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
       // Init prob, mu
       // std::cout<<"========= MULTIV UPDATE ========= "<<std::endl;
-      double cumulatedProb = 1.0;
-      double mu_x = 0.0;
-      double mu_y = 0.0;
 
-      double coeff1 = 0.0;
-      double coeff2 = 0.0;
+      cumulatedProb = 1.0;
 
-      double check_dist;
+      //double check_dist;
       // std::cout<<"========= =========== ========= "<<std::endl;
       for (int l = 0; l < transformed.size(); l++) {
 
@@ -332,7 +357,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         mu_x = map_landmarks.landmark_list[transformed[l].id - 1].x_f;
         mu_y = map_landmarks.landmark_list[transformed[l].id - 1].y_f;
 
-        check_dist = dist(transformed[l].x,transformed[l].y,mu_x,mu_y);
+        //check_dist = dist(transformed[l].x,transformed[l].y,mu_x,mu_y);
 
         // std::cout<<"Distance between pred and obs: "<<check_dist<<std::endl;
 
@@ -347,8 +372,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // -----------------------------------------------------------------------
 
       // Update particle weight and reassign it
-      currentParticle.weight = cumulatedProb;
-      particles[i] = currentParticle;
+      //currentParticle.weight = cumulatedProb;
+      particles[i].weight = cumulatedProb;
 
       // std::cout<<"Final cum prob: "<<cumulatedProb<<", Updated weight: " << particles[i].weight<<std::endl;
 
@@ -444,8 +469,14 @@ void ParticleFilter::resample() {
    // std::cout << " Highest weight: " << highest_weight << std::endl;
 
    // Re-assign the vector of particles
+   particles.clear();
    particles = resampledParticles;
-
+   // for (int i = 0; i < num_particles; ++i) {
+   //   particles.push_back(resampledParticles[i]);
+     // std::cout << "Particle_id :" << particles[i].id<< ", Particle_x: " << particles[i].x <<
+     // ", Particle_y: " << particles[i].y << ", Particle_theta: " << particles[i].theta << std::endl;
+   //}
+   //std::cout << "Resampled Particle Size: " << particles.size() << std::endl;
    // highest_weight = -1.0;
    // for (int i = 0; i < num_particles; ++i) {
    //   if (particles[i].weight > highest_weight) {
