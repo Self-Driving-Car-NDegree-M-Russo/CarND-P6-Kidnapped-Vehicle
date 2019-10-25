@@ -1,7 +1,7 @@
 ## "Kidnapped" Vehicle Project
 
 
-The goal of this project is the implementation, in C++, of a 2D Particle Filter capable of localizing a vehicle using as input noisy sensor measurements and a feature map of the environment, with no "a priori" information (hence the "Kidnapped" situation).  
+The goal of this project is the implementation, in C++, of a 2D Particle Filter capable of localizing a vehicle using as input noisy sensor measurements and a feature map of the environment, with no "a priori" information (hence the "Kidnapped" situation). The state of the vehicle will be expressed by the x, y coordinates and the yaw (steering) angle theta.
 
 The source code is contained in the [src](./src) folder in this git repo. It is the evolution of a starter project provided directly by Udacity, where the [particle_filter.cpp](./src/particle_filter.cpp) was modified. The other files have been left fundamentally unchanged.
 
@@ -38,14 +38,14 @@ the `read_map_data` function is defined in [helper_functions.h](./src/helper_fun
 The first thing that happens to the filter is to have its state initialized at the value of the first measurement ([main.cpp](./src/main.cpp), line 66-73).
 
 ```sh
-          if (!pf.initialized()) {
-            // Sense noisy position data from the simulator
-            double sense_x = std::stod(j[1]["sense_x"].get<string>());
-            double sense_y = std::stod(j[1]["sense_y"].get<string>());
-            double sense_theta = std::stod(j[1]["sense_theta"].get<string>());
+      if (!pf.initialized()) {
+        // Sense noisy position data from the simulator
+        double sense_x = std::stod(j[1]["sense_x"].get<string>());
+        double sense_y = std::stod(j[1]["sense_y"].get<string>());
+        double sense_theta = std::stod(j[1]["sense_theta"].get<string>());
 
-            pf.init(sense_x, sense_y, sense_theta, sigma_pos);
-          }
+        pf.init(sense_x, sense_y, sense_theta, sigma_pos);
+      }
 ```
 
 The `pf.init(...)` instruction initializes the filter starting with the (x,y,theta) collected through simulated GPS measurements in the previous three lines. The actual `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 39-72) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
@@ -107,8 +107,16 @@ The Prediction steps emulates the motion of the vehicle starting from each of th
 
 In this case, the kinematics of the vehicle can be expressed by:
 
+
+The prediction step is actually called from [main.cpp](./src/main.cpp) (lines 73-80):
+
 ```sh
-    pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
+   // Predict the vehicle's next state from previous
+   //   (noiseless control) data.
+   double previous_velocity = std::stod(j[1]["previous_velocity"].get<string>());
+   double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<string>());
+
+   pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
 ```
 
 ## Update Particle Weights
