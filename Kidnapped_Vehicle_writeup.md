@@ -94,6 +94,16 @@ In the [Results](Kidnapped_Vehicle_writeup.md#filter-results) section we will sp
 
 ## Prediction
 
+The Prediction steps emulates the motion of the vehicle starting from each of the particles (that are a collection of possible positions). For this purpose we will use a simple _Bycicle Model_ based on the following assumptions:
+
+1. No vertical dynamics (pure 2D motion)
+2. Rigid body
+3. Front wheels acting together --> they can be considered as one. Same applies to the rear wheels
+4. Only controls are the _Yaw (Steering) Rate_ (theta_dot) and the _Velocity of the Vehicle_ (V)
+5. Control are assumed constant for a sampling interval
+
+In this case, the kinematics of the vehicle can be expressed by:
+
 ```sh
     pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
 ```
