@@ -164,11 +164,23 @@ In the Update step for a particle filter can be decomposed in three steps. For e
 * We identify, from the possible landmarks in range, those that are more likely to be associated with the observations. This selection will be based on the distance from the reference landmark --> _Association_
 * We calculate the propability of observing those landmarks from the position defined by the current particle. The probability will be the new weight to associate to the particle --> _Update weights_
 
-In the following we'll describe the main coding elements for these three steps.
+The Update function is called in [main.cpp](./src/main.cpp), on line 111:
 
 ```sh
     pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
 ```
+
+And the actual implementation can be found in [particle_filter.cpp](./src/particle_filter.cpp), (lines 205-333). In the following we'll describe the main coding elements for each of the three steps identified above.
+
+### _Transformation_
+
+For each particle, the equations to transform an observation from the car reference frame to the map reference frame are:
+
+
+
+### _Association_
+
+### _Update Weights_
 
 ## Resampling
 
