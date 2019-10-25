@@ -186,7 +186,7 @@ For each particle, the equations to transform an observation from the car refere
  * `x_c, y_c` are the coordinates of the observed landmark in the car reference frame;
  * `x_m, y_m` are the coordinates of the landmark in the map reference frame
  
- The implementation of the above equations can be found in [particle_filter.cpp](./particle_filter.cpp) (lines 258, 259):
+ The implementation of the above equations can be found in [particle_filter.cpp](./src/particle_filter.cpp) (lines 258, 259):
  
  ```sh
     xm = xp + (xc * cos(thetap)) - (yc * sin(thetap));
