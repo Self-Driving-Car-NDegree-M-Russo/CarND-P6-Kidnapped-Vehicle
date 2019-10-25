@@ -177,9 +177,21 @@ And the actual implementation can be found in [particle_filter.cpp](./src/partic
 For each particle, the equations to transform an observation from the car reference frame to the map reference frame are:
 
 <p align="center">
-  <img src="./pictures/TransformationEquations.png">
+  <img width="300" height="90" src="./pictures/TransformationEquations.png">
 </p>
-
+ 
+ Where
+ 
+ * `x_p, y_p, theta` are the coordinates and the orientation of the current particle;
+ * `x_c, y_c` are the coordinates of the observed landmark in the car reference frame;
+ * `x_m, y_m` are the coordinates of the landmark in the map reference frame
+ 
+ The implementation of the above equations can be found in [particle_filter.cpp](./particle_filter.cpp) (lines 258, 259):
+ 
+ ```sh
+    xm = xp + (xc * cos(thetap)) - (yc * sin(thetap));
+    ym = yp + (xc * sin(thetap)) + (yc * cos(thetap));
+ ```
 
 ### _Association_
 
