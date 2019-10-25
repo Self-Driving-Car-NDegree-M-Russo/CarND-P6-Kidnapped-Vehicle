@@ -195,6 +195,60 @@ For each particle, the equations to transform an observation from the car refere
 
 ### _Association_
 
+For the association step, we first select a list of landmarks that are observables from the position of the particle. These will be be the ones in the range of the sensor. This step in implemented in [particle_filter.cpp](./src/particle_filter.cpp), lines (273-288):
+
+```sh
+   // First create a vector of landmarks predicted within range from the
+   // landmark map.
+   // Iterate over landmarks in the map
+   for (int k = 0; k < map_landmarks.landmark_list.size(); k++) {
+
+     currentLandmark.x = map_landmarks.landmark_list[k].x_f;
+     currentLandmark.y = map_landmarks.landmark_list[k].y_f;
+     currentLandmark.id = map_landmarks.landmark_list[k].id_i;
+
+     // check if landmark is in range from the particle, given sensor range
+     current_dist = dist(xp, yp, currentLandmark.x, currentLandmark.y);
+
+     if (current_dist <= sensor_range){
+       predicted.push_back(currentLandmark);
+     }
+   }
+```
+
+The actual association is done through the `dataAssociation(...)` function, described in [particle_filter.cpp](./src/particle_filter.cpp) (lines 146-194). 
+
+In that function, we iterate through the oberved and predicted landmarks, and we associate those that are the closest according to their euclidean distance. Focusing on the inner loop only we have:
+
+```sh
+   // Iterate over predicted Landmarks
+   for (int j = 0; j < predicted.size(); ++j) {
+
+     // Extract the prediction
+     currentPrediction = predicted[j];
+
+     // Use distance calculator defined in the helper functions
+     current_dist = dist(currentPrediction.x, currentPrediction.y,
+                         currentObservation.x, currentObservation.y);
+
+     // Check distances and update
+     if (current_dist < min_dist ) {
+       min_dist = current_dist;
+       min_index = j;
+     }
+```
+
+Note that the distance is caluclated through the `dist(..)` function, defined in [helper_functions.h](./src/helper_functions.h) (lines 51-59). At the end of the association phase, each observation is updated with the id of the closest predicted landmark ([particle_filter.cpp](./src/particle_filter.cpp), lines 187-192):
+
+```sh
+   // Identify closest landmark
+   closestPrediction = predicted[min_index];
+
+   // Assign to the observed landmark the id of the closest predicted one
+   currentObservation.id = closestPrediction.id;
+   observations[i] = currentObservation;
+```
+
 ### _Update Weights_
 
 ## Resampling
