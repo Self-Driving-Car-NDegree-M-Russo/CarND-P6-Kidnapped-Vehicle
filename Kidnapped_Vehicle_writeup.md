@@ -102,7 +102,7 @@ The Prediction steps emulates the motion of the vehicle starting from each of th
 1. No vertical dynamics (pure 2D motion);
 2. Rigid body;
 3. Front wheels acting together --> they can be considered as one. Same applies to the rear wheels;
-4. Only controls are the _Yaw (Steering) Rate_ (theta_dot) and the _Velocity of the Vehicle_ (V);
+4. Only controls are the _Yaw (Steering) Rate_ and the _Velocity of the Vehicle_;
 5. Control are assumed constant for a sampling interval.
 
 In this case, the kinematics of the vehicle can be expressed by:
