@@ -260,10 +260,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
         transformedObs.x = xm;
         transformedObs.y = ym;
-        // NOTE the following id will be modified by the next step
+        // NOTE the following id will be modified by the next step (association)
         transformedObs.id = currentObs.id;
-
-        //std::cout<<"ID:  "<< currentObs.id << ", ID: " << observations[j].id <<std::endl;
+        
         transformed.push_back(transformedObs);
       }
 
