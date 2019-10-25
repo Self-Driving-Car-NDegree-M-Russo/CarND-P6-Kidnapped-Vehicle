@@ -38,14 +38,14 @@ the `read_map_data` function is defined in [helper_functions.h](./src/helper_fun
 The first thing that happens to the filter is to have its state initialized at the value of the first measurement ([main.cpp](./src/main.cpp), line 66-73).
 
 ```sh
-      if (!pf.initialized()) {
-        // Sense noisy position data from the simulator
-        double sense_x = std::stod(j[1]["sense_x"].get<string>());
-        double sense_y = std::stod(j[1]["sense_y"].get<string>());
-        double sense_theta = std::stod(j[1]["sense_theta"].get<string>());
+  if (!pf.initialized()) {
+    // Sense noisy position data from the simulator
+    double sense_x = std::stod(j[1]["sense_x"].get<string>());
+    double sense_y = std::stod(j[1]["sense_y"].get<string>());
+    double sense_theta = std::stod(j[1]["sense_theta"].get<string>());
 
-        pf.init(sense_x, sense_y, sense_theta, sigma_pos);
-      }
+    pf.init(sense_x, sense_y, sense_theta, sigma_pos);
+  }
 ```
 
 The `pf.init(...)` instruction initializes the filter starting with the (x,y,theta) collected through simulated GPS measurements in the previous three lines. The actual `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 39-72) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
@@ -117,6 +117,39 @@ The prediction step is actually called from [main.cpp](./src/main.cpp) (lines 73
    double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<string>());
 
    pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
+```
+
+and the `prediction(...)` function is implemented in [particle_filter.cpp](./src/particle_filter.cpp) (lines 84-144). The implementation of the model is on lines (124-129):
+
+```sh
+   // BYCICLE MODEL
+   xf = x0 + vOverThetaDot * (sin(theta0 + (yaw_rate * delta_t)) -
+             sin(theta0));
+   yf = y0 + vOverThetaDot * (cos(theta0) -
+             cos(theta0 + (yaw_rate * delta_t)));
+   thetaf = theta0 + (yaw_rate * delta_t);
+```
+
+On top of the motion propagation we also add process noise charactized as gaussian with 0 mean. The distribution functions are introduced in lines (86-93):
+
+```sh
+   // Set random engine for generating noise
+   std::default_random_engine gen;
+
+   // Create normal (Gaussians) distribution for x, y, theta given the noises
+   // in input and mean = 0.0
+   normal_distribution<double> dist_p_x(0.0, std_pos[0]);
+   normal_distribution<double> dist_p_y(0.0, std_pos[1]);
+   normal_distribution<double> dist_p_theta(0.0, std_pos[2]);
+```
+
+And applied in lines (131-134):
+
+```sh
+   // Add noise
+   xf += dist_p_x(gen);
+   yf += dist_p_y(gen);
+   thetaf += dist_p_theta(gen);
 ```
 
 ## Update Particle Weights
