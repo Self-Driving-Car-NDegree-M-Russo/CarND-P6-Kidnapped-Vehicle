@@ -177,7 +177,7 @@ And the actual implementation can be found in [particle_filter.cpp](./src/partic
 For each particle, the equations to transform an observation from the car reference frame to the map reference frame are:
 
 <p align="center">
-  <img width="460" height="300" src="./pictures/TransformationEquations.png">
+  <img src="./pictures/TransformationEquations.png">
 </p>
 
 
