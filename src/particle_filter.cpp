@@ -73,7 +73,8 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 /**
  * prediction Predicts the state for the next time step
- *   using the process model.
+ *   using the process model. 
+ *   For this project a simple Bycicle Model is used.
  * @param delta_t Time between time step t and t+1 in measurements [s]
  * @param std_pos[] Array of dimension 3 [standard deviation of x [m],
  *   standard deviation of y [m], standard deviation of yaw [rad]]
@@ -145,6 +146,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 /**
  * dataAssociation Finds which observations correspond to which landmarks
  *   (likely by using a nearest-neighbors data association).
+ *   After identifying the closest landmark to an observation, the id of 
+ *   the former is passed to the latter.
  * @param predicted Vector of predicted landmark observations
  * @param observations Vector of landmark observations
  */
@@ -210,8 +213,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     double yp = 0.0;      // Particle y
     double thetap = 0.0;  // Particle theta
 
-    double cumulated_weight = 0.0; // cumlated weight: will be updated while iterating
-                                   //and then used to normalize
+    double cumulated_weight = 0.0; // Cumlated weight: will be updated while iterating
+                                   // and then used to normalize
 
     vector<LandmarkObs> transformed, predicted;
 
@@ -267,7 +270,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // -----------------------------------------------------------------------
       // STEP 2 - Associate transformed observations (measurements) with
       // predicted landmarks within range
-\
+
       // First create a vector of landmarks predicted within range from the
       // landmark map.
       // Iterate over landmarks in the map
@@ -302,7 +305,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
       for (int l = 0; l < transformed.size(); l++) {
         // The x and y means are from the nearest landmark, which id is stored
-        // in transformed id
+        // in transformed observation
         // NOTE: iterators are 0-based while id start from 1
         mu_x = map_landmarks.landmark_list[transformed[l].id - 1].x_f;
         mu_y = map_landmarks.landmark_list[transformed[l].id - 1].y_f;
@@ -333,13 +336,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 /**
  * resample Resamples from the updated set of particles to form
  *   the new set of particles.
- *   Applies SAMPLING WHEEL resampling Algorithm
+ *   Applies SAMPLING WHEEL resampling algorithm
  */
 void ParticleFilter::resample() {
    // Set random engine for generating noise
    std::default_random_engine gen;
 
-   // Determin maximum weight for current particles
+   // Determine maximum weight for current particles
    double highest_weight = -1.0;
    for (int i = 0; i < num_particles; ++i) {
      if (particles[i].weight > highest_weight) {
