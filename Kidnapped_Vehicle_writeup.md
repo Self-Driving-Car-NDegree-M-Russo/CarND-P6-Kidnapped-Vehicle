@@ -108,9 +108,9 @@ The Prediction steps emulates the motion of the vehicle starting from each of th
 
 In this case, the kinematics of the vehicle can be expressed by:
 
-Bycicle Model Kinematics |  
-:-------------------------:
-![alt text][image1] |  
+<p align="center">
+  <img width="460" height="300" src="./pictures/BycicleModel.png">
+</p>
 
 The prediction step is actually called from [main.cpp](./src/main.cpp) (lines 73-80):
 
