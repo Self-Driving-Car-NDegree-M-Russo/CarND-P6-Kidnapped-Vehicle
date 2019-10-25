@@ -32,15 +32,22 @@ the `read_map_data` function is defined in [helper_functions.h](./src/helper_fun
 
 ## Initialization
 
-The first thing that happens to the filter is to have its state initialized at the value of the first measurement ([main.cpp](./src/main.cpp), line 76).
+The first thing that happens to the filter is to have its state initialized at the value of the first measurement ([main.cpp](./src/main.cpp), line 66-73).
 
 ```sh
-     pf.init(sense_x, sense_y, sense_theta, sigma_pos);
+          if (!pf.initialized()) {
+            // Sense noisy position data from the simulator
+            double sense_x = std::stod(j[1]["sense_x"].get<string>());
+            double sense_y = std::stod(j[1]["sense_y"].get<string>());
+            double sense_theta = std::stod(j[1]["sense_theta"].get<string>());
+
+            pf.init(sense_x, sense_y, sense_theta, sigma_pos);
+          }
 ```
 
-This instruction initialize the filter starting with the (x,y,theta) collected through simulated GPS measurements. Specifically, the `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 36-67) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
+The `pf.init(...)` instruction initializes the filter starting with the (x,y,theta) collected through simulated GPS measurements in the previous three lines. The actual `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 39-72) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
 
-The definiton of the normal distribution functions can be found in lines (41-48):
+The definiton of the normal distribution functions can be found in lines (44-51):
 
 ```sh
   // Set random engine for generating noise
@@ -55,7 +62,7 @@ The definiton of the normal distribution functions can be found in lines (41-48)
 
 where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors for the three variables.
 
-The actual assignment of values to the particles happens in lines (50-63):
+The actual assignment of values to the particles happens in lines (56-68):
 
 ```sh
   // Creating a particle to assign data to
@@ -72,8 +79,11 @@ The actual assignment of values to the particles happens in lines (50-63):
     // Append particle to vector
     particles.push_back (currentParticle);
   };
-
 ```
+
+### _Number of Particles_
+
+
 
 ## Prediction
 
