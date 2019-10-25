@@ -9,7 +9,7 @@ The following sections of this writeup will provide details on the filter operat
 
 [//]: # (Image References)
 
-[image1]: ./pictures/BycicleModel.png "Bycicle Model Equations"
+[image1]: ./pictures/BycicleModel.png =100x200 "Bycicle Model Equations"
 [image2]: ./pictures/FinalScreenshot.png "Filter Final Screenshot"
 
 ---
