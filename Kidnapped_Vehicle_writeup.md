@@ -9,7 +9,8 @@ The following sections of this writeup will provide details on the filter operat
 
 [//]: # (Image References)
 
-[image1]: ./pictures/FinalScreenshot.png "Filter Final Screenshot"
+[image1]: ./pictures/BycicleModelt.png "Bycicle Model Equations"
+[image2]: ./pictures/FinalScreenshot.png "Filter Final Screenshot"
 
 ---
 ## Data Input
@@ -107,6 +108,9 @@ The Prediction steps emulates the motion of the vehicle starting from each of th
 
 In this case, the kinematics of the vehicle can be expressed by:
 
+Bycicle Model Kinematics |  
+:-------------------------:
+![alt text][image1] |  
 
 The prediction step is actually called from [main.cpp](./src/main.cpp) (lines 73-80):
 
