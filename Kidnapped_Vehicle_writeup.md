@@ -217,8 +217,7 @@ For the association step, we first select a list of landmarks that are observabl
 ```
 
 The actual association is done through the `dataAssociation(...)` function, described in [particle_filter.cpp](./src/particle_filter.cpp) (lines 146-194). 
-
-In that function, we iterate through the oberved and predicted landmarks, and we associate those that are the closest according to their euclidean distance. Focusing on the inner loop only we have:
+In this function, we iterate through the oberved and predicted landmarks, and we associate those that are the closest according to their euclidean distance. Focusing on the inner loop only we have:
 
 ```sh
    // Iterate over predicted Landmarks
