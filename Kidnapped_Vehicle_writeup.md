@@ -83,7 +83,14 @@ The actual assignment of values to the particles happens in lines (56-68):
 
 ### _Number of Particles_
 
+The number of particles to consider in the filter in also set in the `init(..)` function, at the very beginning (line 42)
 
+```sh
+  // Set number of  particles
+  num_particles = 1000;
+```
+
+In the [Results](Kidnapped_Vehicle_writeup.md#filter-results) section we will spend few words on the effect of this number on the performances of the sistem. 
 
 ## Prediction
 
