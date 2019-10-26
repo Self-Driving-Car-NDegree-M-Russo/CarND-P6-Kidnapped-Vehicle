@@ -61,14 +61,16 @@ The noise is considered to be Gaussian, and the definiton of the normal distribu
 
 where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors for the three variables.
 
-The actual assignment of values to the particles happens in lines (56-68):
+The actual assignment of values to the particles happens in lines (53-68):
 
 ```sh
   // Creating a particle to assign data to
   Particle currentParticle;
 
+  // Generate vector
   for (int i = 0; i < num_particles; ++i) {
 
+    // Generate particle
     currentParticle.id = i+1;                 // Assigning an id
     currentParticle.x = dist_x(gen);          // Sampling from x distribution
     currentParticle.y = dist_y(gen);          // Sampling from y distribution
