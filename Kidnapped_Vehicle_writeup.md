@@ -59,7 +59,7 @@ The noise is considered to be Gaussian, and the definiton of the normal distribu
   normal_distribution<double> dist_theta(theta, std[2]);
 ```
 
-where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors for the three variables (in this exercise = [0.3, 0.3, 0.01]).
+where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors for the three variables (defined in [main.cpp](./src/main.cpp) (lines 35, 36), for this exercise = [0.3, 0.3, 0.01]).
 
 The actual assignment of values to the particles happens in lines (53-68):
 
@@ -131,7 +131,7 @@ and the `prediction(...)` function is implemented in [particle_filter.cpp](./src
    thetaf = theta0 + (yaw_rate * delta_t);
 ```
 
-On top of the motion propagation we also add process noise charactized as gaussian with 0 mean and standard deviation provided as an input throught the `std_pos[]` vector (for this exercise = [0.3, 0.3, 0.01]). The distribution functions are introduced in lines (86-93):
+On top of the motion propagation we also add process noise charactized as gaussian with 0 mean and standard deviation provided as an input through the `std_pos[]` vector (defined in [main.cpp](./src/main.cpp) (lines 35, 36), for this exercise = [0.3, 0.3, 0.01]). The distribution functions are introduced in lines (86-93):
 
 ```sh
    // Set random engine for generating noise
@@ -213,7 +213,7 @@ For the association step, we first select a list of landmarks that are observabl
    }
 ```
 
-Note that the distance is caluclated through the `dist(..)` function, defined in [helper_functions.h](./src/helper_functions.h) (lines 51-59); the sensor range is provided as an input in the `sensor_range` variable (for this exercise = 50 m). 
+Note that the distance is caluclated through the `dist(..)` function, defined in [helper_functions.h](./src/helper_functions.h) (lines 51-59); the sensor range is provided as an input in the `sensor_range` variable (defined in [main.cpp](./src/main.cpp) (lines 33), for this exercise = 50 m). 
 
 The actual association is done through the `dataAssociation(...)` function, described in [particle_filter.cpp](./src/particle_filter.cpp) (lines 146-194). 
 In this function, we iterate through the oberved and predicted landmarks, and we associate those that are the closest according to their euclidean distance. Focusing on the inner loop only we have:
@@ -250,6 +250,64 @@ At the end of the association phase, each observation is updated with the id of 
 ### _Update Weights_
 
 The probability of observing the identidied landmark from the current particle position will be expressed as a cumulative multivariate Gaussian distribution.
+
+For each particle, we apply the formula:
+
+<p align="center">
+  <img width="250" height="90" src="./pictures/MultivariateGaussian.png">
+</p>
+
+Where:
+
+* `x, y` are the observations in map coordinates; 
+* `mu_x, mu_y` are the coordinates of the nearest landmarks;
+* `sigma_x, sigma_y` are the std errors in the definition of the landmark position.
+
+Each observation is considered to be independet from the others, and so the cumulative probabilty of all of them will just be the product of the single ones.
+
+The steps described above are implemented in [particle_filter.cpp](./src/particle_filter.cpp) (lines 297-327). The probability computation happens in lines (302-319):
+
+```sh
+   // Initialize cumulated probability
+   cumulatedProb = 1.0;
+
+   for (int l = 0; l < transformed.size(); l++) {
+     // The x and y means are from the nearest landmark, which id is stored
+     // in transformed observation
+     // NOTE: iterators are 0-based while id start from 1
+     mu_x = map_landmarks.landmark_list[transformed[l].id - 1].x_f;
+     mu_y = map_landmarks.landmark_list[transformed[l].id - 1].y_f;
+
+     coeff1 = (pow((transformed[l].x - mu_x),2.0) / (2 * pow(sigma_x,2.0)));
+     coeff2 = (pow((transformed[l].y - mu_y),2.0) / (2 * pow(sigma_y,2.0)));
+
+     cumulatedProb *= coeffnorm * exp (-(coeff1 + coeff2));
+   }
+
+   // Update particle weight and reassign it
+   particles[i].weight = cumulatedProb;
+```
+
+Where `sigma_x, sigma_x` are defined in [main.cpp](./src/main.cpp) (lines 37, 38) and provided as inputs (for this exercise = [0.3, 0.3]). Note that `coeffnorm` is defined in line 239:
+
+```sh
+   double const coeffnorm = 1.0 / (2 * M_PI * sigma_x * sigma_y);
+```
+
+In order to be reused in the resampling step the probabilities so calculated will have to be normalized between 0 and 1. to this extent a cumlated weight is calculated while iterating (line 322):
+
+```sh
+   // Update cumulated weight
+   cumulated_weight += cumulatedProb;
+```
+and used in a final loop defined in lines (329-332):
+
+```sh
+   // After all the previous process, the weights will still have to be normalized
+   for (int i = 0; i < num_particles; ++i) {
+     particles[i].weight = particles[i].weight / cumulated_weight;
+   }
+```
 
 ## Resampling
 
