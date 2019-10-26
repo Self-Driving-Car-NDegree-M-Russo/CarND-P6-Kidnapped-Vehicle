@@ -46,7 +46,7 @@ The first thing that happens to the filter is to have its state initialized at t
 
 The `pf.init(...)` instruction initializes the filter starting with the (x,y,theta) collected through simulated GPS measurements in the previous three lines. The actual `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 39-72) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
 
-The definiton of the normal distribution functions can be found in lines (44-51):
+The noise is considered to be Gaussian, and the definiton of the normal distribution functions can be found in lines (44-51):
 
 ```sh
   // Set random engine for generating noise
