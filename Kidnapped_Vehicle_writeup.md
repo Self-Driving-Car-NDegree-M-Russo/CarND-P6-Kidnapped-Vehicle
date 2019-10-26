@@ -375,4 +375,8 @@ The code in this repo can be complied following the instructions in the main [RE
   <img width="460" height="350" src="./pictures/FinalScreenshot.png">
 </p>
 
-One of the interesting to evaluate is the effect of the total number of particles, as mentioned in the Initialization section.
+One of the interesting to evaluate is the effect of the total number of particles, as mentioned in the [Initialization](./Kidnapped_Vehicle_writeup.md#initialization) section.
+
+The reults above are achieved with a number of particles = 1000, but that can be lowered while still providing satisfactory outcomes. For example, with 100 particles we have:
+
+
