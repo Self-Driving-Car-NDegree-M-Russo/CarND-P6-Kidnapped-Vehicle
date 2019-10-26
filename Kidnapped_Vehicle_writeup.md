@@ -131,7 +131,7 @@ and the `prediction(...)` function is implemented in [particle_filter.cpp](./src
    thetaf = theta0 + (yaw_rate * delta_t);
 ```
 
-On top of the motion propagation we also add process noise charactized as gaussian with 0 mean. The distribution functions are introduced in lines (86-93):
+On top of the motion propagation we also add process noise charactized as gaussian with 0 mean and standard deviation provided as an input throught the `std_pos[]` vector. The distribution functions are introduced in lines (86-93):
 
 ```sh
    // Set random engine for generating noise
