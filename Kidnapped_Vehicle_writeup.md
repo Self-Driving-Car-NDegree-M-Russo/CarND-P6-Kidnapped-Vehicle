@@ -369,3 +369,8 @@ and then we iterate to build a resampled vector (lines 356-378):
 ---
 ## Filter Results
 
+The code in this repo can be complied following the instructions in the main [README](./README.md). The Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases), that the code will connect to, will show, while running, the accuracy in the tracking and the elapsed time. If the filter succeeds in achieving the required accuracy and complete in less than 100 s (like in this case) the following  message is prompt on the display at the end of the sim:
+
+<p align="center">
+  <img width="460" height="300" src="./pictures/FinalScreenshot.png">
+</p>
