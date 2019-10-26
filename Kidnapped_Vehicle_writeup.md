@@ -366,30 +366,6 @@ and then we iterate to build a resampled vector (lines 356-378):
    }
 ```
 
-
-## Compiling the Code
-
-After having cloned this repo and taken care of the dependencies outlined in the repo [README](./README.md), the main program can be built and ran by doing the following from the project top directory.
-
-```sh
-mkdir build
-cd build
-cmake ..
-make
-./particle_filter
-```
-
-Alternatively some scripts have been included to streamline this process, these can be leveraged by executing the following in the top directory of the project:
-
-```sh
-./clean.sh
-./build.sh
-./run.sh
-```
-
-Note that the first script is not strictly necessary for the first build, but is good practice to clean the project before subsequent builds.
-
-Once started, the Filter code will open a WebSocket connection trying to reach to a data source, and that will be the Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases).
-
+---
 ## Filter Results
 
