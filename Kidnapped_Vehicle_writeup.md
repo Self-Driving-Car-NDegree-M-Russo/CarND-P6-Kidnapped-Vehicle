@@ -59,7 +59,7 @@ The noise is considered to be Gaussian, and the definiton of the normal distribu
   normal_distribution<double> dist_theta(theta, std[2]);
 ```
 
-where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors for the three variables.
+where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors for the three variables (in this exercise = [0.3, 0.3, 0.01]).
 
 The actual assignment of values to the particles happens in lines (53-68):
 
@@ -131,7 +131,7 @@ and the `prediction(...)` function is implemented in [particle_filter.cpp](./src
    thetaf = theta0 + (yaw_rate * delta_t);
 ```
 
-On top of the motion propagation we also add process noise charactized as gaussian with 0 mean and standard deviation provided as an input throught the `std_pos[]` vector. The distribution functions are introduced in lines (86-93):
+On top of the motion propagation we also add process noise charactized as gaussian with 0 mean and standard deviation provided as an input throught the `std_pos[]` vector (for this exercise = [0.3, 0.3, 0.01]). The distribution functions are introduced in lines (86-93):
 
 ```sh
    // Set random engine for generating noise
@@ -213,6 +213,8 @@ For the association step, we first select a list of landmarks that are observabl
    }
 ```
 
+Note that the distance is caluclated through the `dist(..)` function, defined in [helper_functions.h](./src/helper_functions.h) (lines 51-59); the sensor range is provided as an input in the `sensor_range` variable (for this exercise = 50 m). 
+
 The actual association is done through the `dataAssociation(...)` function, described in [particle_filter.cpp](./src/particle_filter.cpp) (lines 146-194). 
 In this function, we iterate through the oberved and predicted landmarks, and we associate those that are the closest according to their euclidean distance. Focusing on the inner loop only we have:
 
@@ -234,7 +236,7 @@ In this function, we iterate through the oberved and predicted landmarks, and we
      }
 ```
 
-Note that the distance is caluclated through the `dist(..)` function, defined in [helper_functions.h](./src/helper_functions.h) (lines 51-59). At the end of the association phase, each observation is updated with the id of the closest predicted landmark ([particle_filter.cpp](./src/particle_filter.cpp), lines 187-192):
+. At the end of the association phase, each observation is updated with the id of the closest predicted landmark ([particle_filter.cpp](./src/particle_filter.cpp), lines 187-192):
 
 ```sh
    // Identify closest landmark
