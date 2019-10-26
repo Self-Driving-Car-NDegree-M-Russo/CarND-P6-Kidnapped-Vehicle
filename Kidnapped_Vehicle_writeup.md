@@ -236,7 +236,7 @@ In this function, we iterate through the oberved and predicted landmarks, and we
      }
 ```
 
-. At the end of the association phase, each observation is updated with the id of the closest predicted landmark ([particle_filter.cpp](./src/particle_filter.cpp), lines 187-192):
+At the end of the association phase, each observation is updated with the id of the closest predicted landmark ([particle_filter.cpp](./src/particle_filter.cpp), lines 187-192):
 
 ```sh
    // Identify closest landmark
@@ -248,6 +248,8 @@ In this function, we iterate through the oberved and predicted landmarks, and we
 ```
 
 ### _Update Weights_
+
+The probability of observing the identidied landmark from the current particle position will be expressed as a cumulative multivariate Gaussian distribution.
 
 ## Resampling
 
