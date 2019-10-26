@@ -215,7 +215,7 @@ For the association step, we first select a list of landmarks that are observabl
 
 Note that the distance is caluclated through the `dist(..)` function, defined in [helper_functions.h](./src/helper_functions.h) (lines 51-59); the sensor range is provided as an input in the `sensor_range` variable (defined in [main.cpp](./src/main.cpp) (lines 33), for this exercise = 50 m). 
 
-The actual association is done through the `dataAssociation(...)` function, described in [particle_filter.cpp](./src/particle_filter.cpp) (lines 146-194). 
+The actual association is done through the `dataAssociation(...)` function, described in [particle_filter.cpp](./src/particle_filter.cpp) (lines 154-194). 
 In this function, we iterate through the oberved and predicted landmarks, and we associate those that are the closest according to their euclidean distance. Focusing on the inner loop only we have:
 
 ```sh
@@ -254,7 +254,7 @@ The probability of observing the identidied landmark from the current particle p
 For each particle, we apply the formula:
 
 <p align="center">
-  <img width="260" height="90" src="./pictures/MultivariateGaussian.png">
+  <img width="265" height="90" src="./pictures/MultivariateGaussian.png">
 </p>
 
 Where:
@@ -311,12 +311,60 @@ and used in a final loop defined in lines (329-332):
 
 ## Resampling
 
+After their weights have been updated, the particles get resampled according to them, in order to select thos that have the highest likelihood. The algorith applied for this project is the _Resampling Wheel_ one, and a good description of it can be find in the Udacity video [here](https://www.youtube.com/watch?v=wNQVo6uOgYA).
+
+The resampling is calling from [main.cpp](./src/main.cpp), on line 112:
+
 ```sh
     pf.resample();
 ```
 
-## Accuracy Evaluation
+And the `resample()` function is actually implemented in [particle_filer.cpp](./src/particle_filter.cpp) (lines 340-383). Focusing on the implementation of resampling, we first define two uniform distributions, for the `beta` coefficient and for the index parsing the particles' vector (lines 341-354):
 
+```sh
+   // Set random engine for generating noise
+   std::default_random_engine gen;
+
+   // Determine maximum weight for current particles
+   double highest_weight = -1.0;
+   for (int i = 0; i < num_particles; ++i) {
+     if (particles[i].weight > highest_weight) {
+       highest_weight = particles[i].weight;
+     }
+   }
+
+   // Uniform distributions for index and beta
+   uniform_int_distribution<int> dist_index(1, num_particles);
+   uniform_real_distribution<double> dist_beta(0.0, 2.0 * highest_weight)
+```
+
+and then we iterate to build a resampled vector (lines 356-378):
+
+```sh
+   // Initialize new vector and coefficient beta
+   std::vector<Particle> resampledParticles;
+   double beta = 0.0;
+
+   // Get starting index randomly
+   int index = dist_index(gen);
+
+   // Iterate over particles
+   for (int j = 0; j < num_particles; ++j) {
+
+     // Increment beta with random generator value
+     beta += dist_beta(gen);
+
+     // Check if weight of the particle is greater then beta, and update
+     // accordingly
+     while (beta > particles[index].weight) {
+       beta -= particles[index].weight;
+       index = (index + 1) % num_particles;
+     }
+
+     // Push sample particle in the new vector
+     resampledParticles.push_back(particles[index]);
+   }
+```
 
 
 ## Compiling the Code
