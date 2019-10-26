@@ -254,7 +254,7 @@ The probability of observing the identidied landmark from the current particle p
 For each particle, we apply the formula:
 
 <p align="center">
-  <img width="250" height="90" src="./pictures/MultivariateGaussian.png">
+  <img width="260" height="90" src="./pictures/MultivariateGaussian.png">
 </p>
 
 Where:
@@ -294,7 +294,7 @@ Where `sigma_x, sigma_x` are defined in [main.cpp](./src/main.cpp) (lines 37, 38
    double const coeffnorm = 1.0 / (2 * M_PI * sigma_x * sigma_y);
 ```
 
-In order to be reused in the resampling step the probabilities so calculated will have to be normalized between 0 and 1. to this extent a cumlated weight is calculated while iterating (line 322):
+In order to be reused in the resampling step the probabilities so calculated will have to be normalized between 0 and 1. To this extent a cumlated weight is calculated while iterating (line 322):
 
 ```sh
    // Update cumulated weight
