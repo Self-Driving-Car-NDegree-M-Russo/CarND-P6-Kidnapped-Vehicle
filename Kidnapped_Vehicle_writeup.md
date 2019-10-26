@@ -7,11 +7,6 @@ The source code is contained in the [src](./src) folder in this git repo. It is 
 
 The following sections of this writeup will provide details on the filter operations and the data flow, and in doing so the fundamental pieces of the code will be explained. A final [Results](Kidnapped_Vehicle_writeup.md#filter-results) section will show the outcomes of the filter running against the reference data set. 
 
-[//]: # (Image References)
-
-[image1]: (./pictures/BycicleModel.png =100x200) "Bycicle Model Equations"
-[image2]: ./pictures/FinalScreenshot.png "Filter Final Screenshot"
-
 ---
 ## Data Input
 
