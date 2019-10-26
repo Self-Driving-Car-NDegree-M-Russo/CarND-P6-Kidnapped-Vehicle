@@ -379,4 +379,12 @@ One of the interesting to evaluate is the effect of the total number of particle
 
 The reults above are achieved with a number of particles = 1000, but that can be lowered while still providing satisfactory outcomes. For example, with 100 particles we have:
 
+<p align="center">
+  <img width="460" height="350" src="./pictures/FinalScreenshotN100.png">
+</p>
+
+From this it can be seen how the error is still comparable but the execution time lowered. Lowering the number of particles, however, affects also the reliability and robustness of the filter, making both the initial sampling and the resampling less effective.
+
+On the other hand, if we increase the number of particles to 10000 we can see that we run out of time:
+
 
