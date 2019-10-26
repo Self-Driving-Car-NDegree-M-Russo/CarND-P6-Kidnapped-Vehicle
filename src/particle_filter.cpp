@@ -73,7 +73,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 /**
  * prediction Predicts the state for the next time step
- *   using the process model. 
+ *   using the process model.
  *   For this project a simple Bycicle Model is used.
  * @param delta_t Time between time step t and t+1 in measurements [s]
  * @param std_pos[] Array of dimension 3 [standard deviation of x [m],
@@ -146,7 +146,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 /**
  * dataAssociation Finds which observations correspond to which landmarks
  *   (likely by using a nearest-neighbors data association).
- *   After identifying the closest landmark to an observation, the id of 
+ *   After identifying the closest landmark to an observation, the id of
  *   the former is passed to the latter.
  * @param predicted Vector of predicted landmark observations
  * @param observations Vector of landmark observations
@@ -262,7 +262,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         transformedObs.y = ym;
         // NOTE the following id will be modified by the next step (association)
         transformedObs.id = currentObs.id;
-        
+
         transformed.push_back(transformedObs);
       }
 
