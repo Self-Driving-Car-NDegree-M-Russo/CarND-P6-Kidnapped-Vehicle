@@ -4,6 +4,9 @@
  *
  * Created on: Dec 12, 2016
  * Author: Tiffany Huang
+ *
+ * Last modified for Udacity project work on: Oct 27th, 2019
+ * Author: Michelangelo Russo
  */
 
 #ifndef PARTICLE_FILTER_H_
