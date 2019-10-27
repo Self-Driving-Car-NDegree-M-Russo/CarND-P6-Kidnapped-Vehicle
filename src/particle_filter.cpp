@@ -4,7 +4,7 @@
  * Created on: Dec 12, 2016
  * Author: Tiffany Huang
  *
- * Last modified for Udacity project work on: Oct 25th, 2019
+ * Last modified for Udacity project work on: Oct 27th, 2019
  * Author: Michelangelo Russo
  */
 
