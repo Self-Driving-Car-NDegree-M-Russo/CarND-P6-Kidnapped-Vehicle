@@ -41,9 +41,6 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   // Set number of  particles
   num_particles = 1000;
 
-  // Set random engine for generating noise
-  std::default_random_engine gen;
-
   // Creates normal (Gaussian) distributions for x, y, theta, given the noises
   // and positions in input
   normal_distribution<double> dist_x(x, std[0]);
@@ -57,6 +54,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   for (int i = 0; i < num_particles; ++i) {
 
     // Generate particle
+    // NOTE: Random noise generator gen defined in particle_filter.h
     currentParticle.id = i+1;                 // Assigning an id
     currentParticle.x = dist_x(gen);          // Sampling from x distribution
     currentParticle.y = dist_y(gen);          // Sampling from y distribution
@@ -83,9 +81,6 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
  */
 void ParticleFilter::prediction(double delta_t, double std_pos[],
                                 double velocity, double yaw_rate) {
-    // Set random engine for generating noise
-    std::default_random_engine gen;
-
     // Create normal (Gaussians) distribution for x, y, theta given the noises
     // in input and mean = 0.0
     normal_distribution<double> dist_p_x(0.0, std_pos[0]);
@@ -105,7 +100,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
     double thetaf = 0.0;  // Final theta
 
     // Prevent division by 0
-    if (abs(yaw_rate) < 0.00001){
+    if (fabs(yaw_rate) < 0.00001){
       yaw_rate = 0.00001;
     }
     double const vOverThetaDot = velocity/yaw_rate;
@@ -129,6 +124,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
       thetaf = theta0 + (yaw_rate * delta_t);
 
       // Add noise
+      // NOTE: Random noise generator gen defined in particle_filter.h
       xf += dist_p_x(gen);
       yf += dist_p_y(gen);
       thetaf += dist_p_theta(gen);
@@ -338,9 +334,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
  *   Applies SAMPLING WHEEL resampling algorithm
  */
 void ParticleFilter::resample() {
-   // Set random engine for generating noise
-   std::default_random_engine gen;
-
    // Determine maximum weight for current particles
    double highest_weight = -1.0;
    for (int i = 0; i < num_particles; ++i) {
@@ -358,6 +351,7 @@ void ParticleFilter::resample() {
    double beta = 0.0;
 
    // Get starting index randomly
+   // NOTE: Random noise generator gen defined in particle_filter.h
    int index = dist_index(gen);
 
    // Iterate over particles
