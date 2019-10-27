@@ -3,7 +3,7 @@
 
 The goal of this project is the implementation, in C++, of a 2D Particle Filter capable of localizing a vehicle using as input noisy sensor measurements and a feature map of the environment, with no "a priori" information (hence the "Kidnapped" situation). The state of the vehicle will be expressed by the x, y coordinates and the yaw (steering) angle theta.
 
-The source code is contained in the [src](./src) folder in this git repo. It is the evolution of a starter project provided directly by Udacity, where the [particle_filter.cpp](./src/particle_filter.cpp) was modified. The other files have been left fundamentally unchanged.
+The source code is contained in the [src](./src) folder in this git repo. It is the evolution of a starter project provided directly by Udacity, where the [particle_filter.cpp](./src/particle_filter.cpp) and [particle_filter.h](./src/particle_filter.h) were modified. The other files have been left fundamentally unchanged.
 
 The following sections of this writeup will provide details on the filter operations and the data flow, and in doing so the fundamental pieces of the code will be explained. A final [Results](Kidnapped_Vehicle_writeup.md#filter-results) section will show the outcomes of the filter running against the reference data set. 
 
@@ -44,14 +44,11 @@ The first thing that happens to the filter is to have its state initialized at t
   }
 ```
 
-The `pf.init(...)` instruction initializes the filter starting with the (x,y,theta) collected through simulated GPS measurements in the previous three lines. The actual `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 39-72) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
+The `pf.init(...)` instruction initializes the filter starting with the (x,y,theta) collected through simulated GPS measurements in the previous three lines. The actual `init(...)` function is coded in [particle_filter.cpp](./src/particle_filter.cpp) (lines 39-70) and in it a vector of particles is created around the measured position, considering the noise of the GPS measurement. All the initial particle weights are set to 1.0.
 
-The noise is considered to be Gaussian, and the definiton of the normal distribution functions can be found in lines (44-51):
+The noise is considered to be Gaussian, and the definiton of the normal distribution functions can be found in lines (44-48):
 
 ```sh
-  // Set random engine for generating noise
-  std::default_random_engine gen;
-
   // Creates normal (Gaussian) distributions for x, y, theta, given the noises
   // and positions in input
   normal_distribution<double> dist_x(x, std[0]);
@@ -61,13 +58,14 @@ The noise is considered to be Gaussian, and the definiton of the normal distribu
 
 where `x, y, theta` are inputs representing the initial measurements, and `std[]` is a vector of size 3 containing the standard deviations for the GPS errors for the three variables (defined in [main.cpp](./src/main.cpp) (lines 35, 36), for this exercise = [0.3, 0.3, 0.01]).
 
-The actual assignment of values to the particles happens in lines (53-68):
+The actual assignment of values to the particles happens in lines (53-66):
 
 ```sh
   // Creating a particle to assign data to
   Particle currentParticle;
 
   // Generate vector
+  // NOTE: Random noise generator gen defined in particle_filter.h
   for (int i = 0; i < num_particles; ++i) {
 
     // Generate particle
@@ -81,6 +79,15 @@ The actual assignment of values to the particles happens in lines (53-68):
     particles.push_back (currentParticle);
   };
 ```
+
+Note that in generating the random value from the distributions we make use of a common random generator defined for thw hole class in [particle_filter.h](./src/particle_filter.h) (lines 128-129):
+
+```sh
+   // Random engine for generating pdf
+   std::default_random_engine gen;
+```
+
+The same generator will be used through the totality of the code, avoiding repetitions.
 
 ### _Number of Particles_
 
@@ -120,7 +127,7 @@ The prediction step is actually called from [main.cpp](./src/main.cpp) (lines 73
    pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
 ```
 
-and the `prediction(...)` function is implemented in [particle_filter.cpp](./src/particle_filter.cpp) (lines 84-144). The implementation of the model is on lines (124-129):
+and the `prediction(...)` function is implemented in [particle_filter.cpp](./src/particle_filter.cpp) (lines 82-140). The implementation of the model is on lines (119-124):
 
 ```sh
    // BYCICLE MODEL
@@ -131,12 +138,9 @@ and the `prediction(...)` function is implemented in [particle_filter.cpp](./src
    thetaf = theta0 + (yaw_rate * delta_t);
 ```
 
-On top of the motion propagation we also add process noise charactized as gaussian with 0 mean and standard deviation provided as an input through the `std_pos[]` vector (defined in [main.cpp](./src/main.cpp) (lines 35, 36), for this exercise = [0.3, 0.3, 0.01]). The distribution functions are introduced in lines (86-93):
+On top of the motion propagation we also add process noise charactized as gaussian with 0 mean and standard deviation provided as an input through the `std_pos[]` vector (defined in [main.cpp](./src/main.cpp) (lines 35, 36), for this exercise = [0.3, 0.3, 0.01]). The distribution functions are introduced in lines (86-88):
 
 ```sh
-   // Set random engine for generating noise
-   std::default_random_engine gen;
-
    // Create normal (Gaussians) distribution for x, y, theta given the noises
    // in input and mean = 0.0
    normal_distribution<double> dist_p_x(0.0, std_pos[0]);
@@ -144,10 +148,11 @@ On top of the motion propagation we also add process noise charactized as gaussi
    normal_distribution<double> dist_p_theta(0.0, std_pos[2]);
 ```
 
-And applied in lines (131-134):
+And applied in lines (126-130):
 
 ```sh
    // Add noise
+   // NOTE: Random noise generator gen defined in particle_filter.h
    xf += dist_p_x(gen);
    yf += dist_p_y(gen);
    thetaf += dist_p_theta(gen);
@@ -183,7 +188,7 @@ For each particle, the equations to transform an observation from the car refere
  * `x_c, y_c` are the coordinates of the observed landmark in the car reference frame;
  * `x_m, y_m` are the coordinates of the landmark in the map reference frame
  
- The implementation of the above equations can be found in [particle_filter.cpp](./src/particle_filter.cpp) (lines 258, 259):
+ The implementation of the above equations can be found in [particle_filter.cpp](./src/particle_filter.cpp) (lines 254, 255):
  
  ```sh
     xm = xp + (xc * cos(thetap)) - (yc * sin(thetap));
@@ -192,7 +197,7 @@ For each particle, the equations to transform an observation from the car refere
 
 ### _Association_
 
-For the association step, we first select a list of landmarks that are observables from the position of the particle. These will be be the ones in the range of the sensor. This step in implemented in [particle_filter.cpp](./src/particle_filter.cpp), lines (273-288):
+For the association step, we first select a list of landmarks that are observables from the position of the particle. These will be be the ones in the range of the sensor. This step in implemented in [particle_filter.cpp](./src/particle_filter.cpp), lines (269-283):
 
 ```sh
    // First create a vector of landmarks predicted within range from the
@@ -215,7 +220,7 @@ For the association step, we first select a list of landmarks that are observabl
 
 Note that the distance is caluclated through the `dist(..)` function, defined in [helper_functions.h](./src/helper_functions.h) (lines 51-59); the sensor range is provided as an input in the `sensor_range` variable (defined in [main.cpp](./src/main.cpp) (lines 33), for this exercise = 50 m). 
 
-The actual association is done through the `dataAssociation(...)` function, described in [particle_filter.cpp](./src/particle_filter.cpp) (lines 154-194). 
+The actual association is done through the `dataAssociation(...)` function, described in [particle_filter.cpp](./src/particle_filter.cpp) (lines 150-190). 
 In this function, we iterate through the oberved and predicted landmarks, and we associate those that are the closest according to their euclidean distance. Focusing on the inner loop only we have:
 
 ```sh
@@ -236,7 +241,7 @@ In this function, we iterate through the oberved and predicted landmarks, and we
      }
 ```
 
-At the end of the association phase, each observation is updated with the id of the closest predicted landmark ([particle_filter.cpp](./src/particle_filter.cpp), lines 187-192):
+At the end of the association phase, each observation is updated with the id of the closest predicted landmark ([particle_filter.cpp](./src/particle_filter.cpp), lines 183-188):
 
 ```sh
    // Identify closest landmark
@@ -265,7 +270,7 @@ Where:
 
 Each observation is considered to be independet from the others, and so the cumulative probabilty of all of them will just be the product of the single ones.
 
-The steps described above are implemented in [particle_filter.cpp](./src/particle_filter.cpp) (lines 297-327). The probability computation happens in lines (302-319):
+The steps described above are implemented in [particle_filter.cpp](./src/particle_filter.cpp) (lines 293-322). The probability computation happens in lines (298-315):
 
 ```sh
    // Initialize cumulated probability
@@ -288,19 +293,19 @@ The steps described above are implemented in [particle_filter.cpp](./src/particl
    particles[i].weight = cumulatedProb;
 ```
 
-Where `sigma_x, sigma_x` are defined in [main.cpp](./src/main.cpp) (lines 37, 38) and provided as inputs (for this exercise = [0.3, 0.3]). Note that `coeffnorm` is defined in line 239:
+Where `sigma_x, sigma_x` are defined in [main.cpp](./src/main.cpp) (lines 37, 38) and provided as inputs (for this exercise = [0.3, 0.3]). Note that `coeffnorm` is defined in line 235:
 
 ```sh
    double const coeffnorm = 1.0 / (2 * M_PI * sigma_x * sigma_y);
 ```
 
-In order to be reused in the resampling step the probabilities so calculated will have to be normalized between 0 and 1. To this extent a cumlated weight is calculated while iterating (line 322):
+In order to be reused in the resampling step the probabilities so calculated will have to be normalized between 0 and 1. To this extent a cumlated weight is calculated while iterating (line 318):
 
 ```sh
    // Update cumulated weight
    cumulated_weight += cumulatedProb;
 ```
-and used in a final loop defined in lines (329-332):
+and used in a final loop defined in lines (325-328):
 
 ```sh
    // After all the previous process, the weights will still have to be normalized
@@ -319,12 +324,9 @@ The resampling is calling from [main.cpp](./src/main.cpp), on line 112:
     pf.resample();
 ```
 
-And the `resample()` function is actually implemented in [particle_filer.cpp](./src/particle_filter.cpp) (lines 340-383). Focusing on the implementation of resampling, we first define two uniform distributions, for the `beta` coefficient and for the index parsing the particles' vector (lines 341-354):
+And the `resample()` function is actually implemented in [particle_filer.cpp](./src/particle_filter.cpp) (lines 336-377). Focusing on the implementation of resampling, we first define two uniform distributions, for the `beta` coefficient and for the index parsing the particles' vector (lines 337-347):
 
 ```sh
-   // Set random engine for generating noise
-   std::default_random_engine gen;
-
    // Determine maximum weight for current particles
    double highest_weight = -1.0;
    for (int i = 0; i < num_particles; ++i) {
@@ -338,7 +340,7 @@ And the `resample()` function is actually implemented in [particle_filer.cpp](./
    uniform_real_distribution<double> dist_beta(0.0, 2.0 * highest_weight)
 ```
 
-and then we iterate to build a resampled vector (lines 356-378):
+and then we iterate to build a resampled vector (lines 353-372):
 
 ```sh
    // Initialize new vector and coefficient beta
@@ -346,6 +348,7 @@ and then we iterate to build a resampled vector (lines 356-378):
    double beta = 0.0;
 
    // Get starting index randomly
+   // NOTE: Random noise generator gen defined in particle_filter.h
    int index = dist_index(gen);
 
    // Iterate over particles
