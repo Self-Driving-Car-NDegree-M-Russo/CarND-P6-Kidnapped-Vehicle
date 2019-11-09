@@ -268,7 +268,7 @@ Where:
 * `mu_x, mu_y` are the coordinates of the nearest landmarks;
 * `sigma_x, sigma_y` are the std errors in the definition of the landmark position.
 
-Each observation is considered to be independet from the others, and so the cumulative probabilty of all of them will just be the product of the single ones.
+Each observation is considered to be independent from the others, and so the cumulative probabilty of all of them will just be the product of the single ones.
 
 The steps described above are implemented in [particle_filter.cpp](./src/particle_filter.cpp) (lines 293-322). The probability computation happens in lines (298-315):
 
