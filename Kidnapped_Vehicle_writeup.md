@@ -316,7 +316,7 @@ and used in a final loop defined in lines (325-328):
 
 ## Resampling
 
-After their weights have been updated, the particles get resampled according to them, in order to select thos that have the highest likelihood. The algorith applied for this project is the _Resampling Wheel_ one, and a good description of it can be find in the Udacity video [here](https://www.youtube.com/watch?v=wNQVo6uOgYA).
+After their weights have been updated, the particles get resampled according to them, in order to select those that have the highest likelihood. The algorith applied for this project is the _Resampling Wheel_ one, and a good description of it can be find in the Udacity video [here](https://www.youtube.com/watch?v=wNQVo6uOgYA).
 
 The resampling is calling from [main.cpp](./src/main.cpp), on line 112:
 
