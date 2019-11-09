@@ -256,7 +256,7 @@ At the end of the association phase, each observation is updated with the id of 
 
 The probability of observing the identified landmarks from the current particle position will be expressed as a cumulative multivariate Gaussian distribution.
 
-For each particle, we apply the formula:
+For each measurement we apply the formula:
 
 <p align="center">
   <img width="265" height="85" src="./pictures/MultivariateGaussian.png">
@@ -264,9 +264,9 @@ For each particle, we apply the formula:
 
 Where:
 
-* `x, y` are the observations in map coordinates; 
+* `x, y` are the coordinates of the observation; 
 * `mu_x, mu_y` are the coordinates of the nearest landmarks;
-* `sigma_x, sigma_y` are the std errors in the definition of the landmark position.
+* `sigma_x, sigma_y` are the std errors in the measurement of the landmark position.
 
 Each observation is considered to be independent from the others, and so the cumulative probabilty of all of them will just be the product of the single ones.
 
