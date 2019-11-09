@@ -80,7 +80,7 @@ The actual assignment of values to the particles happens in lines (53-66):
   };
 ```
 
-Note that in generating the random value from the distributions we make use of a common random generator defined for thw hole class in [particle_filter.h](./src/particle_filter.h) (lines 128-129):
+Note that in generating the random value from the distributions we make use of a common random generator defined for the whole class in [particle_filter.h](./src/particle_filter.h) (lines 128-129):
 
 ```sh
    // Random engine for generating pdf
