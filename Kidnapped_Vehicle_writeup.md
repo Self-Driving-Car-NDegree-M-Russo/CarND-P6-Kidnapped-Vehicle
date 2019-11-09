@@ -259,7 +259,7 @@ The probability of observing the identidied landmark from the current particle p
 For each particle, we apply the formula:
 
 <p align="center">
-  <img width="265" height="90" src="./pictures/MultivariateGaussian.png">
+  <img width="265" height="85" src="./pictures/MultivariateGaussian.png">
 </p>
 
 Where:
