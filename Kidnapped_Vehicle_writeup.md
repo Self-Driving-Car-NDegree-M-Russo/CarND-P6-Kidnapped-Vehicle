@@ -254,7 +254,7 @@ At the end of the association phase, each observation is updated with the id of 
 
 ### _Update Weights_
 
-The probability of observing the identidied landmark from the current particle position will be expressed as a cumulative multivariate Gaussian distribution.
+The probability of observing the identified landmarks from the current particle position will be expressed as a cumulative multivariate Gaussian distribution.
 
 For each particle, we apply the formula:
 
