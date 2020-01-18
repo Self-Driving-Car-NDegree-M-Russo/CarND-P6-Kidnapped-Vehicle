@@ -10,7 +10,7 @@ The following sections of this writeup will provide details on the filter operat
 ---
 ## Data Input
 
-The data source for this Filter will be the Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases). The compiled code will open a websocke session to the sim and provide localization information that will be shon on the screen.
+The data source for this Filter will be the Udacity [simulator](https://github.com/udacity/self-driving-car-sim/releases). The compiled code will open a websocket session to the sim and provide localization information that will be shon on the screen.
 
 ### _The Map_
 
