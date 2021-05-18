@@ -393,7 +393,7 @@ From this it can be seen how the error is still comparable but the execution tim
 On the other hand, if we increase the number of particles to 10000 we can see that we run out of time:
 
 <p align="center">
-  <img width="460" height="350" src="./pictures/FinalScreenshotN10000.png">
+  <img width="460" height="350" src="./pictures/screenshot-watson.png">
 </p>
 
 Of course the actual performances are depending on the system running the code, but the trend is consistent.
